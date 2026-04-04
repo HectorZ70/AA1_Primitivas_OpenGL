@@ -155,7 +155,7 @@ void main(){
 	glewExperimental = GL_TRUE;
 
 	//Activamos cull face
-	glEnable(GL_CULL_FACE);
+	//glEnable(GL_CULL_FACE);
 
 	//Indicamos lado del culling
 	glCullFace(GL_BACK);	
@@ -195,17 +195,18 @@ void main(){
 		glBindBuffer(GL_ARRAY_BUFFER, vboPuntos);		
 
 		//Posición X e Y del punto
-		GLfloat punto[] = {
-			-0.5f, -0.25f, // Vértice superior izquierdo
-			 0.5f, -0.25f, // Vértice superior derecho
-			 0.0f,  0.6f, // Vértice inferior derecho
+		GLfloat square[] = {
+			-0.9f,  0.5f,
+			-0.5f,  0.5f,
+			-0.9f, -0.5f,
+			-0.5f, -0.5f
 		};
 
 		//Definimos modo de dibujo para cada cara
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 		//Ponemos los valores en el VBO creado
-		glBufferData(GL_ARRAY_BUFFER, sizeof(punto), punto, GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(square), square, GL_STATIC_DRAW);
 
 		//Indicamos donde almacenar y como esta distribuida la información
 		glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(GLfloat), (GLvoid*)0);
@@ -235,7 +236,7 @@ void main(){
 			glBindVertexArray(vaoPuntos);
 
 			//Definimos que queremos dibujar
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 3);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 			
 			//Dejamos de usar el VAO indicado anteriormente
 			glBindVertexArray(0);
