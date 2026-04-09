@@ -6,8 +6,8 @@ uniform float time;
 
 void main()
 {
-    // Cada color dura 2 segundos
-    float t = mod(time, 6.0); // 6 segundos para completar ciclo R->G->B
+    // Ciclo de colores
+    float t = mod(time, 6.0); 
 
     vec3 color;
 

@@ -7,10 +7,9 @@ uniform float time;
 
 void main() {
 
-    // ESCALA
     float scale = 0.5;
 
-    // ROTACIÓN X
+    // Matrices de rotacion
     float angleX = time;
     mat3 rotX = mat3(
         1, 0, 0,
@@ -18,7 +17,6 @@ void main() {
         0, sin(angleX), cos(angleX)
     );
 
-    // ROTACIÓN Y
     float angleY = time;
     mat3 rotY = mat3(
         cos(angleY), 0, sin(angleY),
@@ -26,11 +24,11 @@ void main() {
         -sin(angleY), 0, cos(angleY)
     );
 
-    vec3 pos = posicion * scale;       // aplicar escala
-    pos = rotY * rotX * pos;           // luego rotar
+    vec3 pos = posicion * scale; // Aplicar escala
+    pos = rotY * rotX * pos; // Luego rotar
 
-    // ?? MOVIMIENTO ARRIBA/ABAJO
-    float verticalMovement = sin(time) * 0.3; // amplitud 0.3 unidades
+    // Movimiento vertical
+    float verticalMovement = sin(time) * 0.3;
     pos.y += verticalMovement;
 
     gl_Position = vec4(pos.x + offset.x, pos.y + offset.y, pos.z, 1.0);

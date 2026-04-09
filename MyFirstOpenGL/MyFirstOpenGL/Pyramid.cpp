@@ -3,17 +3,17 @@
 
 Pyramid::Pyramid()
 {
+	// Vertices de la piramide (base y punta)
 	GLfloat vertices[] = {
-		// Base de la piramide
 		-0.5f, 0.0f, -0.5f,
 		0.5f, 0.0f, -0.5f,
 		0.5f, 0.0f, 0.5f,
 		-0.5f, 0.0f, 0.5f,
 
-		// Punta de la piramide
 		0.0f, 0.8f, 0.0f
 	};
 
+	// Indices para formar los triangulos de la base y las caras
 	GLuint indices[] = {
 		0, 1, 2,
 		2, 3, 0,
@@ -24,6 +24,7 @@ Pyramid::Pyramid()
 		3, 0, 4
 	};
 
+	// Configuracion de VAO, VBO, EBO
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
@@ -43,8 +44,10 @@ Pyramid::Pyramid()
 
 void Pyramid::Draw(GLint offsetLocation, const glm::vec2& offset)
 {
+	// Actualizar el offset
 	glUniform2f(offsetLocation, offset.x, offset.y);
 
+	// Dibujar la piramide usando VAO
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, 18, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

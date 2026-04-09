@@ -11,17 +11,19 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
-struct ShaderProgram {
+struct ShaderProgram 
+{
 	GLuint vertexShader = 0;
 	GLuint fragmentShader = 0;
 };
 
-void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) {
+void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) 
+{
 	glViewport(0, 0, iFrameBufferWidth, iFrameBufferHeight);
 }
 
-std::string Load_File(const std::string& filePath) {
-
+std::string Load_File(const std::string& filePath) 
+{
 	std::ifstream file(filePath);
 	std::string fileContent;
 	std::string line;
@@ -89,6 +91,7 @@ GLuint LoadFragmentShader(const std::string& filePath) {
 	return fragShader;
 }
 
+// Linkea shaders en un programa de OpenGL
 GLuint CreateProgram(const ShaderProgram& shaders) {
 
 	GLuint program = glCreateProgram();
@@ -152,9 +155,7 @@ int main() {
 
 	glEnable(GL_DEPTH_TEST);
 
-	// ============================
-	// SHADER
-	// ============================
+	// Compilar shaders y crear programa
 	ShaderProgram myProgram;
 	myProgram.vertexShader = LoadVertexShader("MyFirstVertexShader.glsl");
 	myProgram.fragmentShader = LoadFragmentShader("MyFirstFragmentShader.glsl");
@@ -166,9 +167,7 @@ int main() {
 	GLint offsetLocation = glGetUniformLocation(program, "offset");
 	GLint timeLocation = glGetUniformLocation(program, "time");
 
-	// ============================
-	// PIRÁMIDE
-	// ============================
+	//Crear piramide
 	Pyramid pyramid;
 
 	glm::vec2 offset = glm::vec2(0.6f, 0.0f);
@@ -177,9 +176,7 @@ int main() {
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	// ============================
-	// LOOP
-	// ============================
+	// Loop
 	while (!glfwWindowShouldClose(window)) {
 
 		glfwPollEvents();
@@ -188,10 +185,11 @@ int main() {
 
 		glUseProgram(program);
 
-		// ?? TIEMPO PARA ROTACIÓN
+		// Actualizar tiempo
 		float timeValue = glfwGetTime();
 		glUniform1f(timeLocation, timeValue);
 
+		// Dibujar la piramide
 		pyramid.Draw(offsetLocation, offset);
 
 		glfwSwapBuffers(window);
