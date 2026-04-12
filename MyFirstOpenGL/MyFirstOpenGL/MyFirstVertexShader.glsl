@@ -4,6 +4,7 @@ layout(location = 0) in vec3 posicion;
 
 uniform vec2 offset;
 uniform float time;
+uniform int objectType;
 
 void main() {
 
@@ -29,6 +30,14 @@ void main() {
 
     // Movimiento vertical
     float verticalMovement = sin(time) * 0.3;
+
+    if (objectType == 0){
+    verticalMovement = sin(time) * 0.3;
+    }
+    else if (objectType == 1){
+    verticalMovement = cos(time*1.5) *0.2;
+    }
+
     pos.y += verticalMovement;
 
     gl_Position = vec4(pos.x + offset.x, pos.y + offset.y, pos.z, 1.0);
