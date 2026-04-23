@@ -15,6 +15,7 @@ void main() {
 
     mat3 rotX;
     mat3 rotY;
+    mat3 rotZ;
 
     float verticalMovement;
 
@@ -35,6 +36,8 @@ void main() {
             -sin(angleY), 0, cos(angleY)
         );
 
+        rotZ = mat3(1.0);
+
         verticalMovement = sin(time) * 0.75;
     }
     else if (objectType == 1)
@@ -49,10 +52,28 @@ void main() {
             -sin(angleY), 0, cos(angleY)
         );
 
-        verticalMovement = sin(time) * 0.75;;
+        rotZ = mat3(1.0);
+
+        verticalMovement = sin(time) * 0.75;
+    }
+    else if(objectType == 2)
+    {
+        rotX = mat3(1.0);
+
+        rotY = mat3(1.0);
+
+        float angleZ = time * 2.0;
+
+        rotZ = mat3(
+             cos(angleZ), -sin(angleZ), 0,
+            sin(angleZ),  cos(angleZ), 0,
+            0, 0, 1
+        );
+
+        verticalMovement = sin(time) * 0.75;
     }
 
-    pos = rotY * rotX * pos;
+    pos = rotY * rotX * rotZ * pos;
     pos.y += verticalMovement;
 
     fragPos = pos;

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Orthoedro.cpp" />
     <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Square.cpp" />
@@ -28,6 +29,7 @@
     <None Include="MyFirstVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Orthoedro.h" />
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="Square.h" />
   </ItemGroup>
