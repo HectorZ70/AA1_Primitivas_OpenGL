@@ -69,8 +69,6 @@ void main() {
             sin(angleZ),  cos(angleZ), 0,
             0, 0, 1
         );
-
-        verticalMovement = sin(time) * 0.75;
     }
 
     pos = rotY * rotX * rotZ * pos;

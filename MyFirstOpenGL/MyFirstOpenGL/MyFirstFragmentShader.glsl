@@ -21,7 +21,7 @@ void main()
     else
         color = vec3(0.0, 0.0, 1.0); // azul
     }
-    else if (objectType == 1)
+    else if (objectType == 1 || objectType == 2)
     {
             if (fragPos.y > 0.0)
             color = vec3(1.0, 1.0, 0.0); // Amarillo
