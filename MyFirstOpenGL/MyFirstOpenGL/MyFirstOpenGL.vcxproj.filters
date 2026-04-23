@@ -36,7 +36,7 @@
     <ClCompile Include="Square.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
-    <ClCompile Include="Orthoedro.cpp">
+    <ClCompile Include="Orthohedro.cpp">
       <Filter>Archivos de origen</Filter>
     </ClCompile>
   </ItemGroup>
@@ -47,6 +47,7 @@
     <None Include="MyFirstFragmentShader.glsl">
       <Filter>Shaders\Fragment Shader</Filter>
     </None>
+    <None Include="MyFirstGeometryShader.glsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pyramid.h">
@@ -55,7 +56,7 @@
     <ClInclude Include="Square.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
-    <ClInclude Include="Orthoedro.h">
+    <ClInclude Include="Orthohedro.h">
       <Filter>Archivos de encabezado</Filter>
     </ClInclude>
   </ItemGroup>

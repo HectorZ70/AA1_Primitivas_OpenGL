@@ -3,9 +3,9 @@
 #include <GL/glew.h>
 #include <glm.hpp>
 
-class Orthoedro {
+class Orthohedro {
 public:
-	Orthoedro();
+	Orthohedro();
 	void Draw(GLint offsetLocation, const glm::vec2& offset);
 
 private:

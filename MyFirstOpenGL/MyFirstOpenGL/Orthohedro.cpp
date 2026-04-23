@@ -1,18 +1,20 @@
-#include "Orthoedro.h"
+#include "Orthohedro.h"
 
-Orthoedro::Orthoedro()
+Orthohedro::Orthohedro()
 {
 	// Vertices del ortoedro (base y techo)
 	GLfloat vertices[] = {
-		-0.5f, -0.5f,  0.5f,
-		 0.5f, -0.5f,  0.5f,
-		 0.5f,  0.5f,  0.5f,
-		-0.5f,  0.5f,  0.5f,
+	// frente
+	-1.0f, -0.5f,  0.3f,
+	 1.0f, -0.5f,  0.3f,
+	 1.0f,  0.5f,  0.3f,
+	-1.0f,  0.5f,  0.3f,
 
-		-0.5f, -0.5f, -0.5f,
-		 0.5f, -0.5f, -0.5f,
-		 0.5f,  0.5f, -0.5f,
-		-0.5f,  0.5f, -0.5f
+	// atrás
+	-1.0f, -0.5f, -0.3f,
+	 1.0f, -0.5f, -0.3f,
+	 1.0f,  0.5f, -0.3f,
+	-1.0f,  0.5f, -0.3f
 	};
 
 	// Indices para formar las caras
@@ -60,7 +62,7 @@ Orthoedro::Orthoedro()
 	glBindVertexArray(0);
 }
 
-void Orthoedro::Draw(GLint offsetLocation, const glm::vec2& offset)
+void Orthohedro::Draw(GLint offsetLocation, const glm::vec2& offset)
 {
 	// Actualizar el offset
 	glUniform2f(offsetLocation, offset.x, offset.y);

@@ -19,17 +19,18 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Orthoedro.cpp" />
+    <ClCompile Include="Orthohedro.cpp" />
     <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Square.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MyFirstFragmentShader.glsl" />
+    <None Include="MyFirstGeometryShader.glsl" />
     <None Include="MyFirstVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Orthoedro.h" />
+    <ClInclude Include="Orthohedro.h" />
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="Square.h" />
   </ItemGroup>

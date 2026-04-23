@@ -8,7 +8,7 @@
 
 #include "Pyramid.h"
 #include "Square.h"
-#include "Orthoedro.h"
+#include "Orthohedro.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -176,7 +176,7 @@ int main() {
 	Square cube;
 
 	//Crear ortoedro
-	Orthoedro orthoedro;
+	Orthohedro orthohedro;
 
 	glm::vec2 offset = glm::vec2(0.6f, 0.0f);
 
@@ -206,7 +206,7 @@ int main() {
 		cube.Draw(offsetLocation, glm::vec2(-0.6f, 0.0f));
 
 		glUniform1i(objectTypeLocation, 2); // orthoedro
-		orthoedro.Draw(offsetLocation, glm::vec2(0.f, 0.f));
+		orthohedro.Draw(offsetLocation, glm::vec2(0.f, 0.f));
 
 		glfwSwapBuffers(window);
 	}
