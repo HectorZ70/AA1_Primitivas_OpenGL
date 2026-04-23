@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Pyramid.h"
+#include "Square.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -169,6 +170,7 @@ int main() {
 
 	//Crear piramide
 	Pyramid pyramid;
+	Square cube;
 
 	glm::vec2 offset = glm::vec2(0.6f, 0.0f);
 
@@ -185,12 +187,17 @@ int main() {
 
 		glUseProgram(program);
 
+		GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
+		
 		// Actualizar tiempo
 		float timeValue = glfwGetTime();
 		glUniform1f(timeLocation, timeValue);
 
-		// Dibujar la piramide
-		pyramid.Draw(offsetLocation, offset);
+		glUniform1i(objectTypeLocation, 0); // pyramid
+		pyramid.Draw(offsetLocation,offset);
+
+		glUniform1i(objectTypeLocation, 1); // cube
+		cube.Draw(offsetLocation, glm::vec2(-0.6f, 0.0f));
 
 		glfwSwapBuffers(window);
 	}

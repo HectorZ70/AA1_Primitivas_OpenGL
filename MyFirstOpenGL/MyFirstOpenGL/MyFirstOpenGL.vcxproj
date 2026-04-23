@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Square.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MyFirstFragmentShader.glsl" />
@@ -28,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pyramid.h" />
+    <ClInclude Include="Square.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
