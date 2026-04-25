@@ -19,15 +19,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Orthohedro.cpp" />
     <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="Square.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MyFirstFragmentShader.glsl" />
+    <None Include="MyFirstGeometryShader.glsl" />
     <None Include="MyFirstVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Orthohedro.h" />
     <ClInclude Include="Pyramid.h" />
+    <ClInclude Include="Square.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

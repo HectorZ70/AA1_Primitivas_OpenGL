@@ -7,6 +7,8 @@
 #include <vector>
 
 #include "Pyramid.h"
+#include "Square.h"
+#include "Orthohedro.h"
 
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
@@ -104,7 +106,7 @@ GLuint CreateProgram(const ShaderProgram& shaders) {
 		glAttachShader(program, shaders.fragmentShader);
 	}
 
-	// Linkar programa
+	// Linkear programa
 	glLinkProgram(program);
 
 	// Verificar errores
@@ -170,6 +172,12 @@ int main() {
 	//Crear piramide
 	Pyramid pyramid;
 
+	//Crear cubo
+	Square cube;
+
+	//Crear ortoedro
+	Orthohedro orthohedro;
+
 	glm::vec2 offset = glm::vec2(0.6f, 0.0f);
 
 	glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
@@ -185,12 +193,20 @@ int main() {
 
 		glUseProgram(program);
 
+		GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
+		
 		// Actualizar tiempo
 		float timeValue = glfwGetTime();
 		glUniform1f(timeLocation, timeValue);
 
-		// Dibujar la piramide
-		pyramid.Draw(offsetLocation, offset);
+		glUniform1i(objectTypeLocation, 0); // pyramid
+		pyramid.Draw(offsetLocation,offset);
+
+		glUniform1i(objectTypeLocation, 1); // cube
+		cube.Draw(offsetLocation, glm::vec2(-0.6f, 0.0f));
+
+		glUniform1i(objectTypeLocation, 2); // orthoedro
+		orthohedro.Draw(offsetLocation, glm::vec2(0.f, 0.f));
 
 		glfwSwapBuffers(window);
 	}
