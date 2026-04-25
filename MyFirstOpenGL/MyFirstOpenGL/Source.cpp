@@ -1,124 +1,104 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm.hpp>
-#include <iostream>
-#include <string>
-#include <fstream>
-#include <vector>
 
+#include "Utils.h"
 #include "Pyramid.h"
 #include "Square.h"
 #include "Orthohedro.h"
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
+const int WINDOW_WIDTH = 640;
+const int WINDOW_HEIGHT = 480;
 
-struct ShaderProgram
+const float SPEED_UP_FACTOR = 1.1f;
+const float SPEED_DOWN_FACTOR = 0.9f;
+
+const glm::vec2 PYRAMID_OFFSET(0.6f, 0.0f);
+const glm::vec2 CUBE_OFFSET(-0.6f, 0.0f);
+const glm::vec2 ORTHO_OFFSET(0.0f, 0.0f);
+
+
+struct InputState 
 {
-    GLuint vertexShader = 0;
-    GLuint fragmentShader = 0;
+    bool paused = false;
+    bool wireframe = true;
+    bool showCube = true;
+    bool showOrtho = true;
+    bool showPyramid = true;
+    float speed = 1.0f;
+    bool keyPressed[1024] = { false };
 };
 
-void Resize_Window(GLFWwindow* window, int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
 
-std::string Load_File(const std::string& filePath)
+void ProcessInput(GLFWwindow* window, InputState& state)
 {
-    std::ifstream file(filePath);
-    std::string content, line;
-
-    if (!file.is_open()) {
-        std::cerr << "Error abriendo archivo: " << filePath << std::endl;
-        exit(EXIT_FAILURE);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_SPACE])
+    {
+        state.paused = !state.paused;
+        state.keyPressed[GLFW_KEY_SPACE] = true;
     }
 
-    while (std::getline(file, line))
-        content += line + "\n";
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+        state.keyPressed[GLFW_KEY_SPACE] = false;
 
-    return content;
-}
-
-// Vertex Shader
-GLuint LoadVertexShader(const std::string& path)
-{
-    GLuint shader = glCreateShader(GL_VERTEX_SHADER);
-    std::string code = Load_File(path);
-    const char* src = code.c_str();
-
-    glShaderSource(shader, 1, &src, nullptr);
-    glCompileShader(shader);
-
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-    if (!success) {
-        GLint len;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
-        std::vector<char> log(len);
-        glGetShaderInfoLog(shader, len, nullptr, log.data());
-        std::cerr << "Vertex shader error: " << log.data() << std::endl;
-        exit(EXIT_FAILURE);
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_M])
+    {
+        if (!state.paused) state.speed *= SPEED_UP_FACTOR;
+        state.keyPressed[GLFW_KEY_M] = true;
     }
+    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
+        state.keyPressed[GLFW_KEY_M] = false;
 
-    return shader;
-}
-
-// Fragment Shader
-GLuint LoadFragmentShader(const std::string& path)
-{
-    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
-    std::string code = Load_File(path);
-    const char* src = code.c_str();
-
-    glShaderSource(shader, 1, &src, nullptr);
-    glCompileShader(shader);
-
-    GLint success;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-    if (!success) {
-        GLint len;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
-        std::vector<char> log(len);
-        glGetShaderInfoLog(shader, len, nullptr, log.data());
-        std::cerr << "Fragment shader error: " << log.data() << std::endl;
-        exit(EXIT_FAILURE);
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_N])
+    {
+        if (!state.paused) state.speed *= SPEED_DOWN_FACTOR;
+        state.keyPressed[GLFW_KEY_N] = true;
     }
+    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_RELEASE)
+        state.keyPressed[GLFW_KEY_N] = false;
 
-    return shader;
-}
-
-GLuint CreateProgram(const ShaderProgram& shaders)
-{
-    GLuint program = glCreateProgram();
-
-    if (shaders.vertexShader)
-        glAttachShader(program, shaders.vertexShader);
-
-    if (shaders.fragmentShader)
-        glAttachShader(program, shaders.fragmentShader);
-
-    glLinkProgram(program);
-
-    GLint success;
-    glGetProgramiv(program, GL_LINK_STATUS, &success);
-
-    if (!success) {
-        GLint len;
-        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
-        std::vector<char> log(len);
-        glGetProgramInfoLog(program, len, nullptr, log.data());
-        std::cerr << "Link error: " << log.data() << std::endl;
-        exit(EXIT_FAILURE);
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_1])
+    {
+        if (!state.paused)
+        {
+            state.wireframe = !state.wireframe;
+            if (state.wireframe)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            else
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
+        state.keyPressed[GLFW_KEY_1] = true;
     }
+    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_RELEASE)
+        state.keyPressed[GLFW_KEY_1] = false;
 
-    return program;
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_2])
+    {
+        if (!state.paused) state.showCube = !state.showCube;
+        state.keyPressed[GLFW_KEY_2] = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_RELEASE)
+        state.keyPressed[GLFW_KEY_2] = false;
+
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_3])
+    {
+        if (!state.paused) state.showOrtho = !state.showOrtho;
+        state.keyPressed[GLFW_KEY_3] = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_RELEASE)
+        state.keyPressed[GLFW_KEY_3] = false;
+
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_4])
+    {
+        if (!state.paused) state.showPyramid = !state.showPyramid;
+        state.keyPressed[GLFW_KEY_4] = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_RELEASE)
+        state.keyPressed[GLFW_KEY_4] = false;
 }
 
-int main() {
-
+int main()
+{
     glfwInit();
 
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
@@ -127,15 +107,14 @@ int main() {
 
     GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Practica OpenGL", NULL, NULL);
     glfwMakeContextCurrent(window);
-
-    glfwSetFramebufferSizeCallback(window, Resize_Window);
+    glfwSetFramebufferSizeCallback(window, ResizeWindow);
 
     glewExperimental = GL_TRUE;
     glewInit();
 
     glEnable(GL_DEPTH_TEST);
 
-    // Carga y compila shaders
+    // Shaders
     ShaderProgram shaders;
     shaders.vertexShader = LoadVertexShader("MyFirstVertexShader.glsl");
     shaders.fragmentShader = LoadFragmentShader("MyFirstFragmentShader.glsl");
@@ -143,26 +122,16 @@ int main() {
     GLuint program = CreateProgram(shaders);
     glUseProgram(program);
 
-    // Localiza uniforms
     GLint offsetLocation = glGetUniformLocation(program, "offset");
     GLint timeLocation = glGetUniformLocation(program, "time");
     GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
 
-    // Creación de objetos
+    // Objetos
     Pyramid pyramid;
     Square cube;
     Orthohedro orthohedro;
 
-    // Estados
-    bool paused = false;
-    bool wireframe = true;
-    bool showCube = true;
-    bool showOrtho = true;
-    bool showPyramid = true;
-
-    float speed = 1.0f;
-
-    bool keyPressed[1024] = { false };
+    InputState input;
 
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -170,82 +139,39 @@ int main() {
     float accumulatedTime = 0.0f;
     float lastTime = glfwGetTime();
 
-    while (!glfwWindowShouldClose(window)) {
-
+    while (!glfwWindowShouldClose(window))
+    {
         glfwPollEvents();
-
-        auto handleKey = [&](int key, auto action) {
-            if (glfwGetKey(window, key) == GLFW_PRESS) {
-                if (!keyPressed[key]) {
-                    action();
-                    keyPressed[key] = true;
-                }
-            }
-            else {
-                keyPressed[key] = false;
-            }
-            };
-
-        // Pausa
-        handleKey(GLFW_KEY_SPACE, [&]() {
-            paused = !paused;
-            });
-
-        // Velocidad
-        handleKey(GLFW_KEY_M, [&]() {
-            if (!paused) speed *= 1.1f;
-            });
-
-        handleKey(GLFW_KEY_N, [&]() {
-            if (!paused) speed *= 0.9f;
-            });
-
-        // Wireframe
-        handleKey(GLFW_KEY_1, [&]() {
-            if (!paused) {
-                wireframe = !wireframe;
-                glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
-            }
-            });
-
-        // Renderización
-        handleKey(GLFW_KEY_2, [&]() {
-            if (!paused) showCube = !showCube;
-            });
-
-        handleKey(GLFW_KEY_3, [&]() {
-            if (!paused) showOrtho = !showOrtho;
-            });
-
-        handleKey(GLFW_KEY_4, [&]() {
-            if (!paused) showPyramid = !showPyramid;
-            });
+        ProcessInput(window, input);
 
         float currentTime = glfwGetTime();
         float delta = currentTime - lastTime;
         lastTime = currentTime;
 
-        if (!paused)
-            accumulatedTime += delta * speed;
+        if (!input.paused)
+            accumulatedTime += delta * input.speed;
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         glUseProgram(program);
         glUniform1f(timeLocation, accumulatedTime);
 
-        if (showPyramid) {
+        if (input.showPyramid) 
+        {
             glUniform1i(objectTypeLocation, 0);
-            pyramid.Draw(offsetLocation, glm::vec2(0.6f, 0.0f));
+            pyramid.Draw(offsetLocation, PYRAMID_OFFSET);
         }
 
-        if (showCube) {
+        if (input.showCube) 
+        {
             glUniform1i(objectTypeLocation, 1);
-            cube.Draw(offsetLocation, glm::vec2(-0.6f, 0.0f));
+            cube.Draw(offsetLocation, CUBE_OFFSET);
         }
 
-        if (showOrtho) {
+        if (input.showOrtho) 
+        {
             glUniform1i(objectTypeLocation, 2);
-            orthohedro.Draw(offsetLocation, glm::vec2(0.0f, 0.0f));
+            orthohedro.Draw(offsetLocation, ORTHO_OFFSET);
         }
 
         glfwSwapBuffers(window);
@@ -253,6 +179,5 @@ int main() {
 
     glDeleteProgram(program);
     glfwTerminate();
-
     return 0;
 }
