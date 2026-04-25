@@ -13,207 +13,246 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 480
 
-struct ShaderProgram 
+struct ShaderProgram
 {
-	GLuint vertexShader = 0;
-	GLuint fragmentShader = 0;
+    GLuint vertexShader = 0;
+    GLuint fragmentShader = 0;
 };
 
-void Resize_Window(GLFWwindow* window, int iFrameBufferWidth, int iFrameBufferHeight) 
+void Resize_Window(GLFWwindow* window, int width, int height)
 {
-	glViewport(0, 0, iFrameBufferWidth, iFrameBufferHeight);
+    glViewport(0, 0, width, height);
 }
 
-std::string Load_File(const std::string& filePath) 
+std::string Load_File(const std::string& filePath)
 {
-	std::ifstream file(filePath);
-	std::string fileContent;
-	std::string line;
+    std::ifstream file(filePath);
+    std::string content, line;
 
-	if (!file.is_open()) {
-		std::cerr << "No se ha podido abrir el archivo: " << filePath << std::endl;
-		std::exit(EXIT_FAILURE);
-	}
+    if (!file.is_open()) {
+        std::cerr << "Error abriendo archivo: " << filePath << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-	while (std::getline(file, line)) {
-		fileContent += line + "\n";
-	}
+    while (std::getline(file, line))
+        content += line + "\n";
 
-	file.close();
-	return fileContent;
+    return content;
 }
 
-GLuint LoadVertexShader(const std::string& filePath) {
+// Vertex Shader
+GLuint LoadVertexShader(const std::string& path)
+{
+    GLuint shader = glCreateShader(GL_VERTEX_SHADER);
+    std::string code = Load_File(path);
+    const char* src = code.c_str();
 
-	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(shader, 1, &src, nullptr);
+    glCompileShader(shader);
 
-	std::string sShaderCode = Load_File(filePath);
-	const char* cShaderSource = sShaderCode.c_str();
+    GLint success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-	glShaderSource(vertexShader, 1, &cShaderSource, nullptr);
-	glCompileShader(vertexShader);
+    if (!success) {
+        GLint len;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+        std::vector<char> log(len);
+        glGetShaderInfoLog(shader, len, nullptr, log.data());
+        std::cerr << "Vertex shader error: " << log.data() << std::endl;
+        exit(EXIT_FAILURE);
+    }
 
-	GLint success;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-
-	if (success) {
-		return vertexShader;
-	}
-	else {
-		GLint logLength;
-		glGetShaderiv(vertexShader, GL_INFO_LOG_LENGTH, &logLength);
-
-		std::vector<GLchar> errorLog(logLength);
-		glGetShaderInfoLog(vertexShader, logLength, nullptr, errorLog.data());
-
-		std::cerr << "Error al cargar el vertex shader: " << errorLog.data() << std::endl;
-		std::exit(EXIT_FAILURE);
-	}
+    return shader;
 }
 
-GLuint LoadFragmentShader(const std::string& filePath) {
-	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+// Fragment Shader
+GLuint LoadFragmentShader(const std::string& path)
+{
+    GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
+    std::string code = Load_File(path);
+    const char* src = code.c_str();
 
-	std::string code = Load_File(filePath);
-	const char* source = code.c_str();
+    glShaderSource(shader, 1, &src, nullptr);
+    glCompileShader(shader);
 
-	glShaderSource(fragShader, 1, &source, nullptr);
-	glCompileShader(fragShader);
+    GLint success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
 
-	GLint success;
-	glGetShaderiv(fragShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		GLint logLength;
-		glGetShaderiv(fragShader, GL_INFO_LOG_LENGTH, &logLength);
-		std::vector<GLchar> errorLog(logLength);
-		glGetShaderInfoLog(fragShader, logLength, nullptr, errorLog.data());
-		std::cerr << "Error al cargar el fragment shader: " << errorLog.data() << std::endl;
-		std::exit(EXIT_FAILURE);
-	}
-	return fragShader;
+    if (!success) {
+        GLint len;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+        std::vector<char> log(len);
+        glGetShaderInfoLog(shader, len, nullptr, log.data());
+        std::cerr << "Fragment shader error: " << log.data() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    return shader;
 }
 
-// Linkea shaders en un programa de OpenGL
-GLuint CreateProgram(const ShaderProgram& shaders) {
+GLuint CreateProgram(const ShaderProgram& shaders)
+{
+    GLuint program = glCreateProgram();
 
-	GLuint program = glCreateProgram();
+    if (shaders.vertexShader)
+        glAttachShader(program, shaders.vertexShader);
 
-	// Adjuntar shaders si existen
-	if (shaders.vertexShader != 0) {
-		glAttachShader(program, shaders.vertexShader);
-	}
-	if (shaders.fragmentShader != 0) {
-		glAttachShader(program, shaders.fragmentShader);
-	}
+    if (shaders.fragmentShader)
+        glAttachShader(program, shaders.fragmentShader);
 
-	// Linkear programa
-	glLinkProgram(program);
+    glLinkProgram(program);
 
-	// Verificar errores
-	GLint success;
-	glGetProgramiv(program, GL_LINK_STATUS, &success);
+    GLint success;
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
 
-	if (success) {
-		// Desadjuntar shaders después de linkear
-		if (shaders.vertexShader != 0) {
-			glDetachShader(program, shaders.vertexShader);
-		}
-		if (shaders.fragmentShader != 0) {
-			glDetachShader(program, shaders.fragmentShader);
-		}
-		return program;
-	}
-	else {
-		GLint logLength;
-		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
-		std::vector<GLchar> errorLog(logLength);
-		glGetProgramInfoLog(program, logLength, nullptr, errorLog.data());
-		std::cerr << "Error al linkar el programa: " << errorLog.data() << std::endl;
-		std::exit(EXIT_FAILURE);
-	}
+    if (!success) {
+        GLint len;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &len);
+        std::vector<char> log(len);
+        glGetProgramInfoLog(program, len, nullptr, log.data());
+        std::cerr << "Link error: " << log.data() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    return program;
 }
 
 int main() {
 
-	srand(static_cast<unsigned int>(time(NULL)));
+    glfwInit();
 
-	glfwInit();
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
+    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Practica OpenGL", NULL, NULL);
+    glfwMakeContextCurrent(window);
 
-	GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Piramide 3D", NULL, NULL);
-	glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window, Resize_Window);
 
-	glfwSetFramebufferSizeCallback(window, Resize_Window);
+    glewExperimental = GL_TRUE;
+    glewInit();
 
-	glewExperimental = GL_TRUE;
+    glEnable(GL_DEPTH_TEST);
 
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Error inicializando GLEW\n";
-		return -1;
-	}
+    // Carga y compila shaders
+    ShaderProgram shaders;
+    shaders.vertexShader = LoadVertexShader("MyFirstVertexShader.glsl");
+    shaders.fragmentShader = LoadFragmentShader("MyFirstFragmentShader.glsl");
 
-	glEnable(GL_DEPTH_TEST);
+    GLuint program = CreateProgram(shaders);
+    glUseProgram(program);
 
-	// Compilar shaders y crear programa
-	ShaderProgram myProgram;
-	myProgram.vertexShader = LoadVertexShader("MyFirstVertexShader.glsl");
-	myProgram.fragmentShader = LoadFragmentShader("MyFirstFragmentShader.glsl");
+    // Localiza uniforms
+    GLint offsetLocation = glGetUniformLocation(program, "offset");
+    GLint timeLocation = glGetUniformLocation(program, "time");
+    GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
 
-	GLuint program = CreateProgram(myProgram);
-	glUseProgram(program);
+    // Creación de objetos
+    Pyramid pyramid;
+    Square cube;
+    Orthohedro orthohedro;
 
-	// Obtener uniforms
-	GLint offsetLocation = glGetUniformLocation(program, "offset");
-	GLint timeLocation = glGetUniformLocation(program, "time");
+    // Estados
+    bool paused = false;
+    bool wireframe = true;
+    bool showCube = true;
+    bool showOrtho = true;
+    bool showPyramid = true;
 
-	//Crear piramide
-	Pyramid pyramid;
+    float speed = 1.0f;
 
-	//Crear cubo
-	Square cube;
+    bool keyPressed[1024] = { false };
 
-	//Crear ortoedro
-	Orthohedro orthohedro;
+    glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	glm::vec2 offset = glm::vec2(0.6f, 0.0f);
+    float accumulatedTime = 0.0f;
+    float lastTime = glfwGetTime();
 
-	glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
+    while (!glfwWindowShouldClose(window)) {
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glfwPollEvents();
 
-	// Loop
-	while (!glfwWindowShouldClose(window)) {
+        auto handleKey = [&](int key, auto action) {
+            if (glfwGetKey(window, key) == GLFW_PRESS) {
+                if (!keyPressed[key]) {
+                    action();
+                    keyPressed[key] = true;
+                }
+            }
+            else {
+                keyPressed[key] = false;
+            }
+            };
 
-		glfwPollEvents();
+        // Pausa
+        handleKey(GLFW_KEY_SPACE, [&]() {
+            paused = !paused;
+            });
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Velocidad
+        handleKey(GLFW_KEY_M, [&]() {
+            if (!paused) speed *= 1.1f;
+            });
 
-		glUseProgram(program);
+        handleKey(GLFW_KEY_N, [&]() {
+            if (!paused) speed *= 0.9f;
+            });
 
-		GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
-		
-		// Actualizar tiempo
-		float timeValue = glfwGetTime();
-		glUniform1f(timeLocation, timeValue);
+        // Wireframe
+        handleKey(GLFW_KEY_1, [&]() {
+            if (!paused) {
+                wireframe = !wireframe;
+                glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);
+            }
+            });
 
-		glUniform1i(objectTypeLocation, 0); // pyramid
-		pyramid.Draw(offsetLocation,offset);
+        // Renderización
+        handleKey(GLFW_KEY_2, [&]() {
+            if (!paused) showCube = !showCube;
+            });
 
-		glUniform1i(objectTypeLocation, 1); // cube
-		cube.Draw(offsetLocation, glm::vec2(-0.6f, 0.0f));
+        handleKey(GLFW_KEY_3, [&]() {
+            if (!paused) showOrtho = !showOrtho;
+            });
 
-		glUniform1i(objectTypeLocation, 2); // orthoedro
-		orthohedro.Draw(offsetLocation, glm::vec2(0.f, 0.f));
+        handleKey(GLFW_KEY_4, [&]() {
+            if (!paused) showPyramid = !showPyramid;
+            });
 
-		glfwSwapBuffers(window);
-	}
+        float currentTime = glfwGetTime();
+        float delta = currentTime - lastTime;
+        lastTime = currentTime;
 
-	glUseProgram(0);
-	glDeleteProgram(program);
+        if (!paused)
+            accumulatedTime += delta * speed;
 
-	glfwTerminate();
-	return 0;
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        glUseProgram(program);
+        glUniform1f(timeLocation, accumulatedTime);
+
+        if (showPyramid) {
+            glUniform1i(objectTypeLocation, 0);
+            pyramid.Draw(offsetLocation, glm::vec2(0.6f, 0.0f));
+        }
+
+        if (showCube) {
+            glUniform1i(objectTypeLocation, 1);
+            cube.Draw(offsetLocation, glm::vec2(-0.6f, 0.0f));
+        }
+
+        if (showOrtho) {
+            glUniform1i(objectTypeLocation, 2);
+            orthohedro.Draw(offsetLocation, glm::vec2(0.0f, 0.0f));
+        }
+
+        glfwSwapBuffers(window);
+    }
+
+    glDeleteProgram(program);
+    glfwTerminate();
+
+    return 0;
 }
