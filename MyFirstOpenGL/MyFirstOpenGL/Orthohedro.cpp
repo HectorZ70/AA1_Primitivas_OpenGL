@@ -4,17 +4,17 @@ Orthohedro::Orthohedro()
 {
 	// Vertices del ortoedro (base y techo)
 	GLfloat vertices[] = {
-	// frente
-	-1.0f, -0.5f,  0.3f,
-	 1.0f, -0.5f,  0.3f,
-	 1.0f,  0.5f,  0.3f,
-	-1.0f,  0.5f,  0.3f,
+		// frente
+	   -0.5f, -0.5f,  0.5f,
+		0.5f, -0.5f,  0.5f,
+		0.5f,  0.5f,  0.5f,
+	   -0.5f,  0.5f,  0.5f,
 
-	// atrás
-	-1.0f, -0.5f, -0.3f,
-	 1.0f, -0.5f, -0.3f,
-	 1.0f,  0.5f, -0.3f,
-	-1.0f,  0.5f, -0.3f
+	   // atrás
+	   -0.5f, -0.5f, -0.5f,
+		0.5f, -0.5f, -0.5f,
+		0.5f,  0.5f, -0.5f,
+	   -0.5f,  0.5f, -0.5f
 	};
 
 	// Indices para formar las caras
