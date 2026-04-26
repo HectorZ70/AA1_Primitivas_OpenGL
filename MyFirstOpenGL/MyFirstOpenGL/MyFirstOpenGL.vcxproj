@@ -23,6 +23,7 @@
     <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Square.cpp" />
+    <ClCompile Include="UtilsSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="MyFirstFragmentShader.glsl" />
@@ -33,6 +34,7 @@
     <ClInclude Include="Orthohedro.h" />
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="Square.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
