@@ -4,7 +4,7 @@
 
 Square::Square()
 {
-	// Vertices de la piramide (base y punta)
+	// Vertices del cubo
 	GLfloat vertices[] = {
 		-0.5f, -0.5f,  0.5f,
 		 0.5f, -0.5f,  0.5f,
@@ -17,7 +17,7 @@ Square::Square()
 		-0.5f,  0.5f, -0.5f
 	};
 
-	// Indices para formar los triangulos de la base y las caras
+	// Indices para formar las caras
 	GLuint indices[] = {
 		// Cara frontal
 		0, 1, 2,
@@ -67,7 +67,7 @@ void Square::Draw(GLint offsetLocation, const glm::vec2& offset)
 	// Actualizar el offset
 	glUniform2f(offsetLocation, offset.x, offset.y);
 
-	// Dibujar la piramide usando VAO
+	// Dibujar el cubo usando VAO
 	glBindVertexArray(vao);
 	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
