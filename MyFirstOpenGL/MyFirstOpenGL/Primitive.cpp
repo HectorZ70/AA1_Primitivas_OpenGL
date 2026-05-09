@@ -14,6 +14,7 @@ Primitive::~Primitive()
 
 void Primitive::SetupMesh()
 {
+    // VAO
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
 

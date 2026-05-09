@@ -46,7 +46,7 @@ int main()
         "MyFirstFragmentShader.glsl"
     );
 
-    // Objetos
+    // Objects
     Pyramid pyramidMesh;
     Square cubeMesh;
     Orthohedro orthoMesh;
@@ -68,13 +68,9 @@ int main()
 
         input.Update(window, time);
 
-        // Actualizar tiempo
         time.Update();
 
-        // =====================================================
-        // PIRAMIDE
-        // =====================================================
-
+        // Pyramid
         pyramid.SetRotation(glm::vec3(
             time.GetTime(),
             time.GetTime(),
@@ -89,10 +85,7 @@ int main()
 
         pyramid.SetScale(glm::vec3(0.5f));
 
-        // =====================================================
-        // CUBO
-        // =====================================================
-
+        // Cube
         cube.SetRotation(glm::vec3(
             0.0f,
             time.GetTime() * 2.0f,
@@ -107,10 +100,7 @@ int main()
 
         cube.SetScale(glm::vec3(0.5f));
 
-        // =====================================================
-        // ORTHOHEDRO
-        // =====================================================
-
+        // Ortho
         float t =
             (sin(time.GetTime()) + 1.0f) * 0.5f;
 
@@ -135,10 +125,7 @@ int main()
 
         ortho.SetScale(finalScale);
 
-        // =====================================================
-        // RENDER
-        // =====================================================
-
+        // Render
         renderer.Clear();
 
         if (input.ShowPyramid())

@@ -1,7 +1,5 @@
 #include "InputManager.h"
 
-
-
 #include "TimeManager.h"
 
 const float SPEED_UP_FACTOR = 1.1f;
@@ -25,10 +23,7 @@ void InputManager::Update(
     TimeManager& time
 )
 {
-    // =========================================
-    // SPACE -> PAUSE
-    // =========================================
-
+    // Pause
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_SPACE])
     {
@@ -43,10 +38,7 @@ void InputManager::Update(
         keyPressed[GLFW_KEY_SPACE] = false;
     }
 
-    // =========================================
-    // M -> SPEED UP
-    // =========================================
-
+    // Speed up
     if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_M])
     {
@@ -63,10 +55,7 @@ void InputManager::Update(
         keyPressed[GLFW_KEY_M] = false;
     }
 
-    // =========================================
-    // N -> SPEED DOWN
-    // =========================================
-
+    // Speed down
     if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_N])
     {
@@ -83,10 +72,7 @@ void InputManager::Update(
         keyPressed[GLFW_KEY_N] = false;
     }
 
-    // =========================================
-    // 1 -> WIREFRAME
-    // =========================================
-
+    // Window
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_1])
     {
@@ -116,10 +102,7 @@ void InputManager::Update(
         keyPressed[GLFW_KEY_1] = false;
     }
 
-    // =========================================
-    // 2 -> CUBE
-    // =========================================
-
+    // Cube
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_2])
     {
@@ -134,10 +117,7 @@ void InputManager::Update(
         keyPressed[GLFW_KEY_2] = false;
     }
 
-    // =========================================
-    // 3 -> ORTHO
-    // =========================================
-
+    // Ortho
     if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_3])
     {
@@ -152,10 +132,7 @@ void InputManager::Update(
         keyPressed[GLFW_KEY_3] = false;
     }
 
-    // =========================================
-    // 4 -> PYRAMID
-    // =========================================
-
+    // Pyramid
     if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_4])
     {

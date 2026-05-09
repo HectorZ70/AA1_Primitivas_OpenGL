@@ -23,23 +23,18 @@ public:
 
     void Draw();
 
-    // Position
     void SetPosition(const glm::vec3& pos);
     glm::vec3 GetPosition() const;
 
-    // Rotation
     void SetRotation(const glm::vec3& rot);
     glm::vec3 GetRotation() const;
 
-    // Scale
     void SetScale(const glm::vec3& scl);
     glm::vec3 GetScale() const;
 
-    // Visibility
     void SetVisible(bool state);
     bool IsVisible() const;
 
-    // Type
     int GetObjectType() const;
 };
 
