@@ -8,6 +8,7 @@
 #include "Orthohedro.h"
 #include "GameObject.h"
 #include "RenderManager.h"
+#include "TimeManager.h"
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -137,34 +138,104 @@ int main()
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    float accumulatedTime = 0.0f;
-    float lastTime = glfwGetTime();
+    TimeManager time;
 
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+
         ProcessInput(window, input);
 
-        float currentTime = glfwGetTime();
-        float delta = currentTime - lastTime;
-        lastTime = currentTime;
+        // Actualizar tiempo
+        time.Update();
 
-        if (!input.paused)
-            accumulatedTime += delta * input.speed;
+        // =====================================================
+        // PIRAMIDE
+        // =====================================================
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        pyramid.SetRotation(glm::vec3(
+            time.GetTime(),
+            time.GetTime(),
+            0.0f
+        ));
+
+        pyramid.SetPosition(glm::vec3(
+            0.6f,
+            sin(time.GetTime()) * 0.75f,
+            0.0f
+        ));
+
+        pyramid.SetScale(glm::vec3(0.5f));
+
+        // =====================================================
+        // CUBO
+        // =====================================================
+
+        cube.SetRotation(glm::vec3(
+            0.0f,
+            time.GetTime() * 2.0f,
+            0.0f
+        ));
+
+        cube.SetPosition(glm::vec3(
+            -0.6f,
+            sin(time.GetTime()) * 0.75f,
+            0.0f
+        ));
+
+        cube.SetScale(glm::vec3(0.5f));
+
+        // =====================================================
+        // ORTHOHEDRO
+        // =====================================================
+
+        float t =
+            (sin(time.GetTime()) + 1.0f) * 0.5f;
+
+        glm::vec3 orthoScale(1.0f, 0.5f, 0.3f);
+
+        glm::vec3 cubeScale(0.5f);
+
+        glm::vec3 finalScale =
+            glm::mix(orthoScale, cubeScale, t);
+
+        ortho.SetRotation(glm::vec3(
+            0.0f,
+            0.0f,
+            time.GetTime() * 2.0f
+        ));
+
+        ortho.SetPosition(glm::vec3(
+            0.0f,
+            0.0f,
+            0.0f
+        ));
+
+        ortho.SetScale(finalScale);
+
+        // =====================================================
+        // RENDER
+        // =====================================================
 
         renderer.Clear();
 
         if (input.showPyramid)
-            renderer.Render(pyramid, accumulatedTime);
+            renderer.Render(
+                pyramid,
+                time.GetTime()
+            );
 
         if (input.showCube)
-            renderer.Render(cube, accumulatedTime);
+            renderer.Render(
+                cube,
+                time.GetTime()
+            );
 
         if (input.showOrtho)
-            renderer.Render(ortho, accumulatedTime);
-
+            renderer.Render(
+                ortho,
+                time.GetTime()
+            );
 
         glfwSwapBuffers(window);
     }

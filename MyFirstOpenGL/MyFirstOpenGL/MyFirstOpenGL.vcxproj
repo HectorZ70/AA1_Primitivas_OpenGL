@@ -26,6 +26,7 @@
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Square.cpp" />
+    <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="UtilsSource.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -40,6 +41,7 @@
     <ClInclude Include="Pyramid.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Square.h" />
+    <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
