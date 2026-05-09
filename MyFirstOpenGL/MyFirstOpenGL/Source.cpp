@@ -6,6 +6,7 @@
 #include "Pyramid.h"
 #include "Square.h"
 #include "Orthohedro.h"
+#include "GameObject.h"
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -127,9 +128,13 @@ int main()
     GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
 
     // Objetos
-    Pyramid pyramid;
-    Square cube;
-    Orthohedro orthohedro;
+    Pyramid pyramidMesh;
+    Square cubeMesh;
+    Orthohedro orthoMesh;
+
+    GameObject pyramid(&pyramidMesh, 0);
+    GameObject cube(&cubeMesh, 1);
+    GameObject ortho(&orthoMesh, 2);
 
     InputState input;
 
@@ -159,19 +164,19 @@ int main()
         if (input.showPyramid) 
         {
             glUniform1i(objectTypeLocation, 0);
-            pyramid.Draw(offsetLocation, PYRAMID_OFFSET);
+            pyramid.Draw();
         }
 
         if (input.showCube) 
         {
             glUniform1i(objectTypeLocation, 1);
-            cube.Draw(offsetLocation, CUBE_OFFSET);
+            cube.Draw();
         }
 
         if (input.showOrtho) 
         {
             glUniform1i(objectTypeLocation, 2);
-            orthohedro.Draw(offsetLocation, ORTHO_OFFSET);
+            ortho.Draw();
         }
 
         glfwSwapBuffers(window);

@@ -3,13 +3,11 @@
 #include <GL/glew.h>
 #include <glm.hpp>
 
-class Orthohedro {
-public:
-	Orthohedro();
-	void Draw(GLint offsetLocation, const glm::vec2& offset);
+#include "Primitive.h"
 
-private:
-	GLuint vao;
-	GLuint vbo;
-	GLuint ebo;
+class Orthohedro : public Primitive
+{
+public:
+
+	Orthohedro();
 };
