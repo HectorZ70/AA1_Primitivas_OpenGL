@@ -7,6 +7,7 @@
 #include "Square.h"
 #include "Orthohedro.h"
 #include "GameObject.h"
+#include "RenderManager.h"
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -115,17 +116,12 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    // Shaders
-    ShaderProgram shaders;
-    shaders.vertexShader = LoadVertexShader("MyFirstVertexShader.glsl");
-    shaders.fragmentShader = LoadFragmentShader("MyFirstFragmentShader.glsl");
+    RenderManager renderer;
 
-    GLuint program = CreateProgram(shaders);
-    glUseProgram(program);
-
-    GLint offsetLocation = glGetUniformLocation(program, "offset");
-    GLint timeLocation = glGetUniformLocation(program, "time");
-    GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
+    renderer.Initialize(
+        "MyFirstVertexShader.glsl",
+        "MyFirstFragmentShader.glsl"
+    );
 
     // Objetos
     Pyramid pyramidMesh;
@@ -158,31 +154,21 @@ int main()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        glUseProgram(program);
-        glUniform1f(timeLocation, accumulatedTime);
+        renderer.Clear();
 
-        if (input.showPyramid) 
-        {
-            glUniform1i(objectTypeLocation, 0);
-            pyramid.Draw();
-        }
+        if (input.showPyramid)
+            renderer.Render(pyramid, accumulatedTime);
 
-        if (input.showCube) 
-        {
-            glUniform1i(objectTypeLocation, 1);
-            cube.Draw();
-        }
+        if (input.showCube)
+            renderer.Render(cube, accumulatedTime);
 
-        if (input.showOrtho) 
-        {
-            glUniform1i(objectTypeLocation, 2);
-            ortho.Draw();
-        }
+        if (input.showOrtho)
+            renderer.Render(ortho, accumulatedTime);
+
 
         glfwSwapBuffers(window);
     }
 
-    glDeleteProgram(program);
     glfwTerminate();
     return 0;
 }

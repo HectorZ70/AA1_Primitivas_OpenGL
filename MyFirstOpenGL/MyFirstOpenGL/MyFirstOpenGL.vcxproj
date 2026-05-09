@@ -23,6 +23,7 @@
     <ClCompile Include="Orthohedro.cpp" />
     <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="Pyramid.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="Square.cpp" />
     <ClCompile Include="UtilsSource.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="Orthohedro.h" />
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="Pyramid.h" />
+    <ClInclude Include="RenderManager.h" />
     <ClInclude Include="Square.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
