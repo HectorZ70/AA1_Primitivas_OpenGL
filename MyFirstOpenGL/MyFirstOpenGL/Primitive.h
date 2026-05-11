@@ -21,6 +21,8 @@ public:
     Primitive();
     virtual ~Primitive();
 
+    void SetVerticesAndVariables(std::vector<GLfloat> vertices, std::vector<GLuint> indices);
+
     virtual void Draw();
 };
 
