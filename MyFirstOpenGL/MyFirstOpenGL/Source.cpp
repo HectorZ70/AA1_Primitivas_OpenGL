@@ -3,9 +3,6 @@
 #include <glm.hpp>
 
 #include "Utils.h"
-#include "Pyramid.h"
-#include "Square.h"
-#include "Orthohedro.h"
 #include "GameObject.h"
 #include "RenderManager.h"
 #include "TimeManager.h"
@@ -47,9 +44,6 @@ int main()
     );
 
         // Objects
-    //Pyramid pyramidMesh;
-    //Square cubeMesh;
-    //Orthohedro orthoMesh;
 
     Primitive pyramidMesh;
     pyramidMesh.SetVerticesAndVariables(
