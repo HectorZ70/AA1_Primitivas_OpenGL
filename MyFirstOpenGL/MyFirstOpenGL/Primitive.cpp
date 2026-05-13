@@ -12,6 +12,8 @@ Primitive::~Primitive()
     glDeleteBuffers(1, &ebo);
 }
 
+
+
 void Primitive::SetupMesh()
 {
     // VAO
@@ -67,4 +69,13 @@ void Primitive::Draw()
     );
 
     glBindVertexArray(0);
+}
+
+void Primitive::SetVerticesAndVariables(std::vector<GLfloat> vertice, std::vector<GLuint> indice)
+{
+    vertices = vertice;
+
+    indices = indice;
+
+    SetupMesh();
 }

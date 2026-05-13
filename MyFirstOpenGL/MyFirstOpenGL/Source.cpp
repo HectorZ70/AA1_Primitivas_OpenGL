@@ -3,9 +3,6 @@
 #include <glm.hpp>
 
 #include "Utils.h"
-#include "Pyramid.h"
-#include "Square.h"
-#include "Orthohedro.h"
 #include "GameObject.h"
 #include "RenderManager.h"
 #include "TimeManager.h"
@@ -46,10 +43,108 @@ int main()
         "MyFirstFragmentShader.glsl"
     );
 
-    // Objects
-    Pyramid pyramidMesh;
-    Square cubeMesh;
-    Orthohedro orthoMesh;
+        // Objects
+
+    Primitive pyramidMesh;
+    pyramidMesh.SetVerticesAndVariables(
+        std::vector<GLfloat>{
+        -0.5f, 0.0f, -0.5f,
+            0.5f, 0.0f, -0.5f,
+            0.5f, 0.0f, 0.5f,
+            -0.5f, 0.0f, 0.5f,
+
+            0.0f, 0.8f, 0.0f
+    },
+
+        std::vector<GLuint>{
+        0, 1, 2,
+            2, 3, 0,
+
+            0, 1, 4,
+            1, 2, 4,
+            2, 3, 4,
+            3, 0, 4
+    }
+    );
+    Primitive cubeMesh;
+    cubeMesh.SetVerticesAndVariables(
+        std::vector<GLfloat>{
+        -0.5f, -0.5f, 0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, 0.5f,
+
+            -0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, 0.5f, -0.5f,
+            -0.5f, 0.5f, -0.5f},
+
+        std::vector<GLuint>{
+        // Frontal
+        0, 1, 2,
+            2, 3, 0,
+
+            // Back
+            5, 4, 7,
+            7, 6, 5,
+
+            // Left
+            4, 0, 3,
+            3, 7, 4,
+
+            // Right
+            1, 5, 6,
+            6, 2, 1,
+
+            // Superior
+            3, 2, 6,
+            6, 7, 3,
+
+            // Inferior
+            4, 5, 1,
+            1, 0, 4
+    }
+    );
+    Primitive orthoMesh;
+    orthoMesh.SetVerticesAndVariables(
+        std::vector<GLfloat>{
+        // Front
+        -0.5f, -0.5f, 0.5f,
+            0.5f, -0.5f, 0.5f,
+            0.5f, 0.5f, 0.5f,
+            -0.5f, 0.5f, 0.5f,
+
+            // Back
+            -0.5f, -0.5f, -0.5f,
+            0.5f, -0.5f, -0.5f,
+            0.5f, 0.5f, -0.5f,
+            -0.5f, 0.5f, -0.5f},
+
+        std::vector<GLuint>{
+            // Front
+            0, 1, 2,
+                2, 3, 0,
+
+                // Back
+                5, 4, 7,
+                7, 6, 5,
+
+                // Left
+                4, 0, 3,
+                3, 7, 4,
+
+                // Right
+                1, 5, 6,
+                6, 2, 1,
+
+                // Superior
+                3, 2, 6,
+                6, 7, 3,
+
+                // Inferior
+                4, 5, 1,
+                1, 0, 4}
+    );
 
     GameObject pyramid(&pyramidMesh, 0);
     GameObject cube(&cubeMesh, 1);

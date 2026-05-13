@@ -21,12 +21,9 @@
   <ItemGroup>
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="InputManager.cpp" />
-    <ClCompile Include="Orthohedro.cpp" />
     <ClCompile Include="Primitive.cpp" />
-    <ClCompile Include="Pyramid.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Square.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="UtilsSource.cpp" />
   </ItemGroup>
@@ -38,11 +35,8 @@
   <ItemGroup>
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Orthohedro.h" />
     <ClInclude Include="Primitive.h" />
-    <ClInclude Include="Pyramid.h" />
     <ClInclude Include="RenderManager.h" />
-    <ClInclude Include="Square.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
