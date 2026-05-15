@@ -13,6 +13,7 @@ private:
 
     GLint timeLocation;
     GLint objectTypeLocation;
+    GLuint positionLocation;
 
 public:
 

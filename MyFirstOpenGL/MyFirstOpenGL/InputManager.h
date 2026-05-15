@@ -3,6 +3,7 @@
 #include <GLFW/glfw3.h>
 
 class TimeManager;
+class SceneManager;
 
 class InputManager
 {
@@ -22,7 +23,8 @@ public:
 
     void Update(
         GLFWwindow* window,
-        TimeManager& time
+        TimeManager& time,
+        SceneManager& sceneManager
     );
 
     bool ShowCube() const;
@@ -33,4 +35,3 @@ public:
 
     bool IsWireframe() const;
 };
-

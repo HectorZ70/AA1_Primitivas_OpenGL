@@ -23,6 +23,7 @@
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="RenderManager.cpp" />
+    <ClCompile Include="SceneManager.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="UtilsSource.cpp" />
@@ -37,6 +38,7 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="RenderManager.h" />
+    <ClInclude Include="SceneManager.h" />
     <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
