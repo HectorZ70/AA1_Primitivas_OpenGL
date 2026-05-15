@@ -19,10 +19,12 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Orthohedro.cpp" />
-    <ClCompile Include="Pyramid.cpp" />
+    <ClCompile Include="GameObject.cpp" />
+    <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Primitive.cpp" />
+    <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="Square.cpp" />
+    <ClCompile Include="TimeManager.cpp" />
     <ClCompile Include="UtilsSource.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -31,9 +33,11 @@
     <None Include="MyFirstVertexShader.glsl" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Orthohedro.h" />
-    <ClInclude Include="Pyramid.h" />
-    <ClInclude Include="Square.h" />
+    <ClInclude Include="GameObject.h" />
+    <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Primitive.h" />
+    <ClInclude Include="RenderManager.h" />
+    <ClInclude Include="TimeManager.h" />
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
