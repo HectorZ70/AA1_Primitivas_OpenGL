@@ -6,6 +6,7 @@ out vec3 fragPos;
 uniform vec2 offset;
 uniform float time;
 uniform int objectType;
+uniform vec3 objectPosition;
 
 void main() {
 
@@ -89,8 +90,8 @@ void main() {
 
     fragPos = pos;
 
-    gl_Position = vec4(pos.x + offset.x,
-                       pos.y + offset.y,
-                       pos.z,
-                       1.0);
+    gl_Position = vec4(
+    pos + objectPosition,
+    1.0
+);
 }

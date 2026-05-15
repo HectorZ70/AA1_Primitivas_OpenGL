@@ -1,6 +1,7 @@
 #include "InputManager.h"
 
 #include "TimeManager.h"
+#include "SceneManager.h"
 
 const float SPEED_UP_FACTOR = 1.1f;
 const float SPEED_DOWN_FACTOR = 0.9f;
@@ -20,7 +21,8 @@ InputManager::InputManager()
 
 void InputManager::Update(
     GLFWwindow* window,
-    TimeManager& time
+    TimeManager& time,
+    SceneManager& sceneManager
 )
 {
     // Pause
@@ -72,7 +74,7 @@ void InputManager::Update(
         keyPressed[GLFW_KEY_N] = false;
     }
 
-    // Window
+    // Wireframe
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS
         && !keyPressed[GLFW_KEY_1])
     {
@@ -145,6 +147,36 @@ void InputManager::Update(
         == GLFW_RELEASE)
     {
         keyPressed[GLFW_KEY_4] = false;
+    }
+
+    // Escena normal
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS
+        && !keyPressed[GLFW_KEY_F1])
+    {
+        sceneManager.SetScene(SceneManager::SCENE_GAME);
+
+        keyPressed[GLFW_KEY_F1] = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F1)
+        == GLFW_RELEASE)
+    {
+        keyPressed[GLFW_KEY_F1] = false;
+    }
+
+    // Escena vacia
+    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS
+        && !keyPressed[GLFW_KEY_F2])
+    {
+        sceneManager.SetScene(SceneManager::SCENE_EMPTY);
+
+        keyPressed[GLFW_KEY_F2] = true;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_F2)
+        == GLFW_RELEASE)
+    {
+        keyPressed[GLFW_KEY_F2] = false;
     }
 }
 
