@@ -7,6 +7,7 @@
 #include "RenderManager.h"
 #include "TimeManager.h"
 #include "InputManager.h"
+#include "SceneManager.h"
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -151,6 +152,7 @@ int main()
     GameObject ortho(&orthoMesh, 2);
 
     InputManager input;
+    SceneManager sceneManager;
 
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -161,7 +163,7 @@ int main()
     {
         glfwPollEvents();
 
-        input.Update(window, time);
+        input.Update(window, time, sceneManager);
 
         time.Update();
 
@@ -223,23 +225,30 @@ int main()
         // Render
         renderer.Clear();
 
-        if (input.ShowPyramid())
-            renderer.Render(
-                pyramid,
-                time.GetTime()
-            );
+        if (sceneManager.IsGameScene())
+        {
+            if (input.ShowPyramid())
+                renderer.Render(
+                    pyramid,
+                    time.GetTime()
+                );
 
-        if (input.ShowCube())
-            renderer.Render(
-                cube,
-                time.GetTime()
-            );
+            if (input.ShowCube())
+                renderer.Render(
+                    cube,
+                    time.GetTime()
+                );
 
-        if (input.ShowOrtho())
-            renderer.Render(
-                ortho,
-                time.GetTime()
-            );
+            if (input.ShowOrtho())
+                renderer.Render(
+                    ortho,
+                    time.GetTime()
+                );
+        }
+        else if (sceneManager.IsEmptyScene())
+        {
+            // Escena completamente vacia
+        }
 
         glfwSwapBuffers(window);
     }
