@@ -173,9 +173,9 @@ int main()
         ));
 
         pyramid.SetPosition(glm::vec3(
-            0.6f,
+            PYRAMID_OFFSET.x,
             sin(time.GetTime()) * 0.75f,
-            0.0f
+            PYRAMID_OFFSET.y
         ));
 
         pyramid.SetScale(glm::vec3(0.5f));
@@ -188,9 +188,9 @@ int main()
         ));
 
         cube.SetPosition(glm::vec3(
-            -0.6f,
+            CUBE_OFFSET.x,
             sin(time.GetTime()) * 0.75f,
-            0.0f
+            CUBE_OFFSET.y
         ));
 
         cube.SetScale(glm::vec3(0.5f));
@@ -213,9 +213,9 @@ int main()
         ));
 
         ortho.SetPosition(glm::vec3(
+            ORTHO_OFFSET.x,
             0.0f,
-            0.0f,
-            0.0f
+            ORTHO_OFFSET.y
         ));
 
         ortho.SetScale(finalScale);

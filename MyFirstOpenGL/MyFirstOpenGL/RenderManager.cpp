@@ -28,6 +28,9 @@ void RenderManager::Initialize(
 
     objectTypeLocation =
         glGetUniformLocation(shaderProgram, "objectType");
+
+    positionLocation =
+        glGetUniformLocation(shaderProgram, "objectPosition");
 }
 
 void RenderManager::Clear()
@@ -42,11 +45,21 @@ void RenderManager::Render(GameObject& object, float time)
 
     glUseProgram(shaderProgram);
 
+    // Tiempo
     glUniform1f(timeLocation, time);
 
+    // Tipo de objeto
     glUniform1i(
         objectTypeLocation,
         object.GetObjectType()
+    );
+
+    // Posición del objeto
+    glUniform3f(
+        positionLocation,
+        object.GetPosition().x,
+        object.GetPosition().y,
+        object.GetPosition().z
     );
 
     object.Draw();
