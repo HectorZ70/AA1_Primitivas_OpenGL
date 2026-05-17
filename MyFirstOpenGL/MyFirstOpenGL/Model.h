@@ -8,9 +8,11 @@ class Model
 {
 public:
     Model(const std::vector<float>& vertexs, const std::vector<float>& uvs, const std::vector<float>& normals);
+    void SetTexture(GLuint textureID);
     void Render(GLuint shaderProgram, float time, glm::vec3 position) const;
 private:
     GLuint VAO, VBO, uvVBO;
+    GLuint textureID;
     unsigned int numVertexs;
 };
 #endif

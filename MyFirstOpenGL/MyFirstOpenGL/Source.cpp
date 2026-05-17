@@ -121,6 +121,33 @@ Model LoadOBJModel(const std::string& filePath)
     return Model(vertexs, textureCoordinates, vertexNormal);
 }
 
+GLuint LoadTexture(const std::string& filePath)
+{
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(filePath.c_str(), &width, &height, &nrChannels, 0);
+    if (!data)
+    {
+        std::cerr << "Error cargando textura: " << filePath << std::endl;
+        return 0;
+    }
+
+    GLuint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(data);
+
+    return id;
+}
+
 int main()
 {
     glfwInit();
@@ -136,33 +163,19 @@ int main()
     glewExperimental = GL_TRUE;
     glewInit();
 
+    // Cargar modelos
     models.push_back(LoadOBJModel("Assets/Modelos/troll.obj"));
+    models.push_back(LoadOBJModel("Assets/Modelos/rock.obj"));
 
-    glActiveTexture(GL_TEXTURE0);
-
-    int width, height, nrChannels;
-    stbi_set_flip_vertically_on_load(true);
-    unsigned char* textureInfo = stbi_load("Assets/Texturas/troll.png", &width, &height, &nrChannels, 0);
-    if (!textureInfo)
-        std::cerr << "Error cargando textura: " << stbi_failure_reason() << std::endl;
-
-    GLuint textureID;
-    glGenTextures(1, &textureID);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureInfo);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(textureInfo);
+    // Asignar texturas a cada modelo usando la función helper
+    models[0].SetTexture(LoadTexture("Assets/Texturas/troll.png"));
+    models[1].SetTexture(LoadTexture("Assets/Texturas/rock.png"));
 
     glEnable(GL_DEPTH_TEST);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    RenderManager renderer;   // también tienes esto duplicado, borra una copia
+    RenderManager renderer;
+    renderer.Initialize("MyFirstVertexShader.glsl", "MyFirstFragmentShader.glsl");
     renderer.Initialize("MyFirstVertexShader.glsl", "MyFirstFragmentShader.glsl");
 
     // DESPUÉS de Initialize ya tienes el shaderProgram disponible:
@@ -361,7 +374,7 @@ int main()
         if (sceneManager.IsGameScene())
         {
             models[0].Render(renderer.GetProgram(), time.GetTime(), glm::vec3(-0.6f, 0.0f, 0.0f));
-            models[0].Render(renderer.GetProgram(), time.GetTime(), glm::vec3( 0.6f, 0.0f, 0.0f));
+            models[1].Render(renderer.GetProgram(), time.GetTime(), glm::vec3( 0.6f, 0.0f, 0.0f));
         }
         else if (sceneManager.IsEmptyScene())
         {
