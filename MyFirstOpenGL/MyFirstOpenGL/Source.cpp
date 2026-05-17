@@ -1,11 +1,13 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
 #include <cmath>
 
 #include "Utils.h"
 #include "Primitive.h"
 #include "GameObject.h"
+#include "ModelGameObject.h"
 #include "RenderManager.h"
 #include "TimeManager.h"
 #include "InputManager.h"
@@ -20,13 +22,14 @@ static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
 const glm::vec3 PYRAMID_OFFSET(0.6f, 0.0f, 0.0f);
 const glm::vec3 CUBE_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
+const glm::vec3 TROLL_OFFSET(-0.6f, 0.0f, 0.0f);
+const glm::vec3 ROCK_OFFSET(0.6f, 0.0f, 0.0f);
 
-// Calcula MVP fuera del render � main.cpp orquesta
-glm::mat4 ComputeMVP(const GameObject& obj, const Camera& cam)
+glm::mat4 ComputeMVP(const Transform& t, const Camera& cam)
 {
     return cam.GetProjectionMatrix()
         * cam.GetViewMatrix()
-        * obj.GetTransform().GetModelMatrix();
+        * t.GetModelMatrix();
 }
 
 int main()
@@ -38,15 +41,13 @@ int main()
 
     GLFWwindow* window = glfwCreateWindow(
         WINDOW_WIDTH, WINDOW_HEIGHT,
-        "Practica OpenGL", NULL, NULL
-    );
+        "Practica OpenGL", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, ResizeWindow);
 
     glewExperimental = GL_TRUE;
     glewInit();
     glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     RenderManager renderer;
     renderer.Initialize(
@@ -54,6 +55,7 @@ int main()
         "MyFirstFragmentShader.glsl"
     );
 
+    // --- Primitives ---
     Primitive pyramidMesh;
     pyramidMesh.SetVerticesAndVariables(
         { -0.5f,0.0f,-0.5f,  0.5f,0.0f,-0.5f,
@@ -87,6 +89,18 @@ int main()
     GameObject cube(&cubeMesh, 1);
     GameObject ortho(&orthoMesh, 2);
 
+    // --- Models OBJ ---
+    Model trollModel = LoadOBJModel("Assets/Modelos/troll.obj");
+    Model rockModel = LoadOBJModel("Assets/Modelos/rock.obj");
+    trollModel.SetTexture(LoadTexture("Assets/Texturas/troll.png"));
+    rockModel.SetTexture(LoadTexture("Assets/Texturas/rock.png"));
+
+    ModelGameObject troll(&trollModel);
+    ModelGameObject rock(&rockModel);
+    troll.GetTransform().SetPosition(TROLL_OFFSET);
+    rock.GetTransform().SetPosition(ROCK_OFFSET);
+
+    // --- Camera ---
     Camera camera(70.0f, ASPECT_RATIO);
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -105,52 +119,54 @@ int main()
 
         const float t = time.GetTime();
 
-        // Pyramid: rota XY, rebota en Y
+        // Pyramid
         pyramid.GetTransform().SetPosition(
             PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
         pyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
         pyramid.GetTransform().SetScale(glm::vec3(0.5f));
 
-        // Cube: rota Y, rebota en Y
+        // Cube
         cube.GetTransform().SetPosition(
             CUBE_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
         cube.GetTransform().SetRotation(glm::vec3(0.0f, t * 2.0f, 0.0f));
         cube.GetTransform().SetScale(glm::vec3(0.5f));
 
-        // Ortho: interpola forma, rota Z
+        // Ortho
         float blend = (sin(t) + 1.0f) * 0.5f;
         ortho.GetTransform().SetPosition(ORTHO_OFFSET);
         ortho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t * 2.0f));
         ortho.GetTransform().SetScale(glm::mix(
             glm::vec3(1.0f, 0.5f, 0.3f),
-            glm::vec3(0.5f),
-            blend
-        ));
+            glm::vec3(0.5f), blend));
 
         renderer.Clear();
 
         if (sceneManager.IsGameScene())
         {
-            if (input.ShowPyramid() && pyramid.IsVisible())
-                renderer.Render(
-                    *pyramid.GetPrimitive(),
-                    ComputeMVP(pyramid, camera),
-                    pyramid.GetObjectType(), t
-                );
+            // Primitives
+            if (input.ShowPyramid())
+                renderer.Render(*pyramid.GetPrimitive(),
+                    ComputeMVP(pyramid.GetTransform(), camera),
+                    pyramid.GetObjectType(), t);
 
-            if (input.ShowCube() && cube.IsVisible())
-                renderer.Render(
-                    *cube.GetPrimitive(),
-                    ComputeMVP(cube, camera),
-                    cube.GetObjectType(), t
-                );
+            if (input.ShowCube())
+                renderer.Render(*cube.GetPrimitive(),
+                    ComputeMVP(cube.GetTransform(), camera),
+                    cube.GetObjectType(), t);
 
-            if (input.ShowOrtho() && ortho.IsVisible())
-                renderer.Render(
-                    *ortho.GetPrimitive(),
-                    ComputeMVP(ortho, camera),
-                    ortho.GetObjectType(), t
-                );
+            if (input.ShowOrtho())
+                renderer.Render(*ortho.GetPrimitive(),
+                    ComputeMVP(ortho.GetTransform(), camera),
+                    ortho.GetObjectType(), t);
+
+            // Models OBJ
+            if (troll.IsVisible())
+                renderer.Render(*troll.GetModel(),
+                    ComputeMVP(troll.GetTransform(), camera), t);
+
+            if (rock.IsVisible())
+                renderer.Render(*rock.GetModel(),
+                    ComputeMVP(rock.GetTransform(), camera), t);
         }
 
         glfwSwapBuffers(window);
