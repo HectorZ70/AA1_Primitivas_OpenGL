@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Model.cpp" />
     <ClCompile Include="Primitive.cpp" />
     <ClCompile Include="RenderManager.cpp" />
     <ClCompile Include="SceneManager.cpp" />
@@ -36,6 +37,7 @@
   <ItemGroup>
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="Primitive.h" />
     <ClInclude Include="RenderManager.h" />
     <ClInclude Include="SceneManager.h" />

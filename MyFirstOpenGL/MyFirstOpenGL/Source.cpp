@@ -8,6 +8,10 @@
 #include "TimeManager.h"
 #include "InputManager.h"
 #include "SceneManager.h"
+#include "Model.h"
+#include <sstream>
+#include <fstream>
+#include <iostream>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -19,6 +23,102 @@ const glm::vec2 PYRAMID_OFFSET(0.6f, 0.0f);
 const glm::vec2 CUBE_OFFSET(-0.6f, 0.0f);
 const glm::vec2 ORTHO_OFFSET(0.0f, 0.0f);
 
+std::vector<Model> models;
+
+Model LoadOBJModel(const std::string& filePath)
+{
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        std::cerr << "No se ha podido abrir el archivo: " << filePath << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
+    std::string line;
+    std::stringstream ss;
+    std::string prefix;
+    glm::vec3 tmpVec3;
+    glm::vec2 tmpVec2;
+
+    std::vector<float> vertexs;
+    std::vector<float> vertexNormal;
+    std::vector<float> textureCoordinates;
+
+    std::vector<float> tmpVertexs;
+    std::vector<float> tmpNormals;
+    std::vector<float> tmpTextureCoordinates;
+
+    while (std::getline(file, line)) {
+        ss.clear();
+        ss.str(line);
+        ss >> prefix;
+
+        if (prefix == "v")
+        {
+            ss >> tmpVec3.x >> tmpVec3.y >> tmpVec3.z;
+
+            tmpVertexs.push_back(tmpVec3.x);
+            tmpVertexs.push_back(tmpVec3.y);
+            tmpVertexs.push_back(tmpVec3.z);
+        }
+        else if (prefix == "vt")
+        {
+            //Las UVs son siempre imagenes 2D asi que uso el tmpvec2 para almacenarlas
+            ss >> tmpVec2.x >> tmpVec2.y;
+
+            //Almaceno en mi vector temporal las UVs
+            tmpTextureCoordinates.push_back(tmpVec2.x);
+            tmpTextureCoordinates.push_back(tmpVec2.y);
+        }
+        else if (prefix == "vn")
+        {
+            //Asumo que solo trabajo 3D así que almaceno XYZ de forma consecutiva
+            ss >> tmpVec3.x >> tmpVec3.y >> tmpVec3.z;
+
+            //Almaceno en mi vector temporal de normales las normales
+            tmpNormals.push_back(tmpVec3.x);
+            tmpNormals.push_back(tmpVec3.y);
+            tmpNormals.push_back(tmpVec3.z);
+
+        }
+        else if (prefix == "f")
+        {
+            int vertexData;
+            short counter = 0;
+
+            //Obtengo todos los valores hasta un espacio
+            while (ss >> vertexData) {
+
+                //En orden cada numero sigue el patron de vertice/uv/normal
+                switch (counter) {
+                case 0:
+                    //Si es un vertice lo almaceno - 1 por el offset y almaceno dos seguidos al ser un vec3, salto 1 / y aumento el contador en 1
+                    vertexs.push_back(tmpVertexs[(vertexData - 1) * 3]);
+                    vertexs.push_back(tmpVertexs[((vertexData - 1) * 3) + 1]);
+                    vertexs.push_back(tmpVertexs[((vertexData - 1) * 3) + 2]);
+                    ss.ignore(1, '/');
+                    counter++;
+                    break;
+                case 1:
+                    //Si es un uv lo almaceno - 1 por el offset y almaceno dos seguidos al ser un vec2, salto 1 / y aumento el contador en 1
+                    textureCoordinates.push_back(tmpTextureCoordinates[(vertexData - 1) * 2]);
+                    textureCoordinates.push_back(tmpTextureCoordinates[((vertexData - 1) * 2) + 1]);
+                    ss.ignore(1, '/');
+                    counter++;
+                    break;
+                case 2:
+                    //Si es una normal la almaceno - 1 por el offset y almaceno tres seguidos al ser un vec3, salto 1 / y reinicio
+                    vertexNormal.push_back(tmpNormals[(vertexData - 1) * 3]);
+                    vertexNormal.push_back(tmpNormals[((vertexData - 1) * 3) + 1]);
+                    vertexNormal.push_back(tmpNormals[((vertexData - 1) * 3) + 2]);
+                    counter = 0;
+                    break;
+                }
+            }
+        }
+    }
+    return Model(vertexs, textureCoordinates, vertexNormal);
+}
 
 int main()
 {
@@ -34,6 +134,8 @@ int main()
 
     glewExperimental = GL_TRUE;
     glewInit();
+
+    models.push_back(LoadOBJModel("Assets/Modelos/troll.obj"));
 
     glEnable(GL_DEPTH_TEST);
 
@@ -162,6 +264,8 @@ int main()
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
+
+        models[0].Render();
 
         input.Update(window, time, sceneManager);
 
