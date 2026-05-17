@@ -85,6 +85,14 @@ void main() {
     verticalMovement = 0.0;
 }
 
+    else if (objectType == 3)
+{
+    rotX = mat3(1.0);
+    rotY = mat3(1.0);
+    rotZ = mat3(1.0);
+    verticalMovement = 0.0;
+}
+
     pos = rotY * rotX * rotZ * pos;
     pos.y += verticalMovement;
 

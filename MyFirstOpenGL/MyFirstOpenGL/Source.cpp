@@ -265,8 +265,6 @@ int main()
     {
         glfwPollEvents();
 
-        models[0].Render();
-
         input.Update(window, time, sceneManager);
 
         time.Update();
@@ -331,6 +329,8 @@ int main()
 
         if (sceneManager.IsGameScene())
         {
+            models[0].Render(renderer.GetProgram(), time.GetTime());
+
             if (input.ShowPyramid())
                 renderer.Render(
                     pyramid,
