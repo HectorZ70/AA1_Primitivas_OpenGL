@@ -5,7 +5,8 @@ RenderManager::RenderManager()
     : shaderProgram(0),
     mvpLocation(-1),
     objectTypeLocation(-1),
-    timeLocation(-1)
+    timeLocation(-1),
+    textureSamplerLocation(-1)
 {
 }
 
@@ -22,6 +23,7 @@ void RenderManager::Initialize(
     mvpLocation = glGetUniformLocation(shaderProgram, "mvp");
     objectTypeLocation = glGetUniformLocation(shaderProgram, "objectType");
     timeLocation = glGetUniformLocation(shaderProgram, "time");
+    textureSamplerLocation = glGetUniformLocation(shaderProgram, "textureSampler");
 }
 
 void RenderManager::Clear()
@@ -40,6 +42,24 @@ void RenderManager::Render(
     glUniform1i(objectTypeLocation, objectType);
     glUniform1f(timeLocation, time);
     primitive.Draw();
+}
+
+void RenderManager::Render(
+    const Model& model,
+    const glm::mat4& mvp,
+    float            time)
+{
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+    glUniform1i(objectTypeLocation, 3);   // objectType 3 = modelo OBJ
+    glUniform1f(timeLocation, time);
+
+    // Textura en unit 0
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, model.GetTextureID());
+    glUniform1i(textureSamplerLocation, 0);
+
+    model.Draw();
 }
 
 GLuint RenderManager::GetProgram() const

@@ -4,6 +4,7 @@ out vec4 FragColor;
 
 uniform int   objectType;
 uniform float time;
+uniform sampler2D textureSampler;
 
 void main()
 {
@@ -22,6 +23,11 @@ void main()
             ? vec3(1.0, 1.0, 0.0)
             : vec3(1.0, 0.5, 0.0);
     }
-
-    FragColor = vec4(color, 1.0);
+    else // objectType 1 y 2
+    {
+        vec3 color = (fragPos.y > 0.0)
+            ? vec3(1.0, 1.0, 0.0)  // amarillo
+            : vec3(1.0, 0.5, 0.0); // naranja
+        FragColor = vec4(color, 1.0);
+    }
 }

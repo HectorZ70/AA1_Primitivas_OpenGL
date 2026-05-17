@@ -21,7 +21,7 @@ const glm::vec3 PYRAMID_OFFSET(0.6f, 0.0f, 0.0f);
 const glm::vec3 CUBE_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
 
-// Calcula MVP fuera del render — main.cpp orquesta
+// Calcula MVP fuera del render ï¿½ main.cpp orquesta
 glm::mat4 ComputeMVP(const GameObject& obj, const Camera& cam)
 {
     return cam.GetProjectionMatrix()
@@ -46,6 +46,7 @@ int main()
     glewExperimental = GL_TRUE;
     glewInit();
     glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     RenderManager renderer;
     renderer.Initialize(
@@ -94,7 +95,7 @@ int main()
     TimeManager  time;
 
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     while (!glfwWindowShouldClose(window))
     {
