@@ -1,183 +1,285 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+#include <cmath>
 
 #include "Utils.h"
-#include "Pyramid.h"
-#include "Square.h"
-#include "Orthohedro.h"
+#include "Primitive.h"
+#include "GameObject.h"
+#include "ModelGameObject.h"
+#include "RenderManager.h"
+#include "TimeManager.h"
+#include "InputManager.h"
+#include "SceneManager.h"
+#include "Camera.h"
 
-const int WINDOW_WIDTH = 640;
-const int WINDOW_HEIGHT = 480;
+const int   WINDOW_WIDTH = 640;
+const int   WINDOW_HEIGHT = 480;
+const float ASPECT_RATIO =
+static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
 
-const float SPEED_UP_FACTOR = 1.1f;
-const float SPEED_DOWN_FACTOR = 0.9f;
+const glm::vec3 PYRAMID_OFFSET(0.6f, 0.0f, 0.0f);
+const glm::vec3 CUBE_OFFSET(-0.6f, 0.0f, 0.0f);
+const glm::vec3 ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
+const glm::vec3 TROLL_OFFSET(-0.6f, 0.0f, 0.0f);
+const glm::vec3 ROCK_OFFSET(0.6f, 0.0f, 0.0f);
 
-const glm::vec2 PYRAMID_OFFSET(0.6f, 0.0f);
-const glm::vec2 CUBE_OFFSET(-0.6f, 0.0f);
-const glm::vec2 ORTHO_OFFSET(0.0f, 0.0f);
-
-
-struct InputState 
+glm::mat4 ComputeMVP(const Transform& t, const Camera& cam)
 {
-    bool paused = false;
-    bool wireframe = true;
-    bool showCube = true;
-    bool showOrtho = true;
-    bool showPyramid = true;
-    float speed = 1.0f;
-    bool keyPressed[1024] = { false };
-};
-
-
-void ProcessInput(GLFWwindow* window, InputState& state)
-{
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_SPACE])
-    {
-        state.paused = !state.paused;
-        state.keyPressed[GLFW_KEY_SPACE] = true;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
-        state.keyPressed[GLFW_KEY_SPACE] = false;
-
-    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_M])
-    {
-        if (!state.paused) state.speed *= SPEED_UP_FACTOR;
-        state.keyPressed[GLFW_KEY_M] = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_M) == GLFW_RELEASE)
-        state.keyPressed[GLFW_KEY_M] = false;
-
-    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_N])
-    {
-        if (!state.paused) state.speed *= SPEED_DOWN_FACTOR;
-        state.keyPressed[GLFW_KEY_N] = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_N) == GLFW_RELEASE)
-        state.keyPressed[GLFW_KEY_N] = false;
-
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_1])
-    {
-        if (!state.paused)
-        {
-            state.wireframe = !state.wireframe;
-            if (state.wireframe)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            else
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
-        state.keyPressed[GLFW_KEY_1] = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_1) == GLFW_RELEASE)
-        state.keyPressed[GLFW_KEY_1] = false;
-
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_2])
-    {
-        if (!state.paused) state.showCube = !state.showCube;
-        state.keyPressed[GLFW_KEY_2] = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_2) == GLFW_RELEASE)
-        state.keyPressed[GLFW_KEY_2] = false;
-
-    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_3])
-    {
-        if (!state.paused) state.showOrtho = !state.showOrtho;
-        state.keyPressed[GLFW_KEY_3] = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_RELEASE)
-        state.keyPressed[GLFW_KEY_3] = false;
-
-    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS && !state.keyPressed[GLFW_KEY_4])
-    {
-        if (!state.paused) state.showPyramid = !state.showPyramid;
-        state.keyPressed[GLFW_KEY_4] = true;
-    }
-    if (glfwGetKey(window, GLFW_KEY_4) == GLFW_RELEASE)
-        state.keyPressed[GLFW_KEY_4] = false;
+    return cam.GetProjectionMatrix()
+        * cam.GetViewMatrix()
+        * t.GetModelMatrix();
 }
 
 int main()
 {
     glfwInit();
-
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
-    GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Practica OpenGL", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(
+        WINDOW_WIDTH, WINDOW_HEIGHT,
+        "Practica OpenGL", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, ResizeWindow);
 
     glewExperimental = GL_TRUE;
     glewInit();
-
     glEnable(GL_DEPTH_TEST);
 
-    // Shaders
-    ShaderProgram shaders;
-    shaders.vertexShader = LoadVertexShader("MyFirstVertexShader.glsl");
-    shaders.fragmentShader = LoadFragmentShader("MyFirstFragmentShader.glsl");
+    RenderManager renderer;
+    renderer.Initialize(
+        "MyFirstVertexShader.glsl",
+        "MyFirstFragmentShader.glsl"
+    );
 
-    GLuint program = CreateProgram(shaders);
-    glUseProgram(program);
+    Primitive pyramidMesh;
+    pyramidMesh.SetVerticesAndVariables(
+        { -0.5f,0.0f,-0.5f,  0.5f,0.0f,-0.5f,
+           0.5f,0.0f, 0.5f, -0.5f,0.0f, 0.5f,
+           0.0f,0.8f, 0.0f },
+        { 0,1,2, 2,3,0,
+          0,1,4, 1,2,4, 2,3,4, 3,0,4 }
+    );
+    Primitive cubeMesh;
+    cubeMesh.SetVerticesAndVariables(
+        { -0.5f,-0.5f, 0.5f,  0.5f,-0.5f, 0.5f,
+           0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+          -0.5f,-0.5f,-0.5f,  0.5f,-0.5f,-0.5f,
+           0.5f, 0.5f,-0.5f, -0.5f, 0.5f,-0.5f },
+        { 0,1,2, 2,3,0,   5,4,7, 7,6,5,
+          4,0,3, 3,7,4,   1,5,6, 6,2,1,
+          3,2,6, 6,7,3,   4,5,1, 1,0,4 }
+    );
+    Primitive orthoMesh;
+    orthoMesh.SetVerticesAndVariables(
+        { -0.5f,-0.5f, 0.5f,  0.5f,-0.5f, 0.5f,
+           0.5f, 0.5f, 0.5f, -0.5f, 0.5f, 0.5f,
+          -0.5f,-0.5f,-0.5f,  0.5f,-0.5f,-0.5f,
+           0.5f, 0.5f,-0.5f, -0.5f, 0.5f,-0.5f },
+        { 0,1,2, 2,3,0,   5,4,7, 7,6,5,
+          4,0,3, 3,7,4,   1,5,6, 6,2,1,
+          3,2,6, 6,7,3,   4,5,1, 1,0,4 }
+    );
 
-    GLint offsetLocation = glGetUniformLocation(program, "offset");
-    GLint timeLocation = glGetUniformLocation(program, "time");
-    GLint objectTypeLocation = glGetUniformLocation(program, "objectType");
+    GameObject pyramid(&pyramidMesh, 0);
+    GameObject cube(&cubeMesh, 1);
+    GameObject ortho(&orthoMesh, 2);
 
-    // Objetos
-    Pyramid pyramid;
-    Square cube;
-    Orthohedro orthohedro;
+    Model trollModel = LoadOBJModel("Assets/Modelos/troll.obj");
+    Model rockModel = LoadOBJModel("Assets/Modelos/rock.obj");
+    trollModel.SetTexture(LoadTexture("Assets/Texturas/troll.png"));
+    rockModel.SetTexture(LoadTexture("Assets/Texturas/rock.png"));
 
-    InputState input;
+    ModelGameObject troll(&trollModel);
+    ModelGameObject rock(&rockModel);
+    troll.GetTransform().SetPosition(TROLL_OFFSET);
+    rock.GetTransform().SetPosition(ROCK_OFFSET);
+
+    Camera camera(70.0f, ASPECT_RATIO);
+    camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+
+    glm::vec3 target = troll.GetTransform().GetPosition();
+
+    camera.SetTarget(target);
+
+    InputManager input;
+    SceneManager sceneManager;
+    TimeManager  time;
 
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    float accumulatedTime = 0.0f;
-    float lastTime = glfwGetTime();
+    float yaw = 0.0f;
+
+    float defaultRadius = 5.0f;
+    float defaultPitch = 20.0f;
+    float defaultFOV = 70.0f;
+
+    float radius = defaultRadius;
+    float pitch = defaultPitch;
+
+    float dollyDistance = 10.0f;
+    float dollySpeed = 2.0f;
+
+    bool generalView = false;
+    bool detailView = false;
+    bool dollyZoom = false;
 
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
-        ProcessInput(window, input);
+        input.Update(window, time, sceneManager);
+        time.Update();
 
-        float currentTime = glfwGetTime();
-        float delta = currentTime - lastTime;
-        lastTime = currentTime;
+        const float t = time.GetTime();
 
-        if (!input.paused)
-            accumulatedTime += delta * input.speed;
+        // Pyramid
+        pyramid.GetTransform().SetPosition(
+            PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
+        pyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
+        pyramid.GetTransform().SetScale(glm::vec3(0.5f));
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // Cube
+        cube.GetTransform().SetPosition(
+            CUBE_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
+        cube.GetTransform().SetRotation(glm::vec3(0.0f, t * 2.0f, 0.0f));
+        cube.GetTransform().SetScale(glm::vec3(0.5f));
 
-        glUseProgram(program);
-        glUniform1f(timeLocation, accumulatedTime);
+        // Ortho
+        float blend = (sin(t) + 1.0f) * 0.5f;
+        ortho.GetTransform().SetPosition(ORTHO_OFFSET);
+        ortho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t * 2.0f));
+        ortho.GetTransform().SetScale(glm::mix(
+            glm::vec3(1.0f, 0.5f, 0.3f),
+            glm::vec3(0.5f), blend));
 
-        if (input.showPyramid) 
+        //Rotación de la camara
+        glm::vec3 cameraPos;
+
+        if (!generalView &&
+            !detailView &&
+            !dollyZoom)
         {
-            glUniform1i(objectTypeLocation, 0);
-            pyramid.Draw(offsetLocation, PYRAMID_OFFSET);
+            yaw += time.GetDeltaTime() * 50.0f;
+
+            cameraPos.x =
+                target.x +
+                radius *
+                cos(glm::radians(pitch)) *
+                cos(glm::radians(yaw));
+
+            cameraPos.y =
+                target.y +
+                radius *
+                sin(glm::radians(pitch));
+
+            cameraPos.z =
+                target.z +
+                radius *
+                cos(glm::radians(pitch)) *
+                sin(glm::radians(yaw));
+
+            camera.SetTarget(target);
+        }
+        else
+        {
+            // Plano general frontal
+            cameraPos =
+                target +
+                glm::vec3(0.0f, 2.0f, 10.0f);
         }
 
-        if (input.showCube) 
+        if (dollyZoom)
         {
-            glUniform1i(objectTypeLocation, 1);
-            cube.Draw(offsetLocation, CUBE_OFFSET);
+            dollyDistance -= time.GetDeltaTime() * dollySpeed;
+
+            if (dollyDistance < 2.0f)
+                dollyDistance = 10.0f;
+
+            cameraPos =
+                target +
+                glm::vec3(0.0f, 2.0f, dollyDistance);
+
+            float dynamicFOV =
+                glm::degrees(
+                    2.0f * atan(2.0f / dollyDistance)
+                );
+
+            camera.SetFOV(dynamicFOV);
+        }
+        if (detailView)
+        {
+            glm::vec3 headTarget =
+                target + glm::vec3(0.0f, 1.5f, 0.0f);
+
+            cameraPos =
+                headTarget +
+                glm::vec3(0.0f, 0.2f, 1.0f);
+
+            camera.SetTarget(headTarget);
+
+            camera.SetFOV(25.0f);
         }
 
-        if (input.showOrtho) 
+        camera.GetTransform().SetPosition(cameraPos);
+        renderer.Clear();
+
+        if (sceneManager.IsGameScene())
         {
-            glUniform1i(objectTypeLocation, 2);
-            orthohedro.Draw(offsetLocation, ORTHO_OFFSET);
+            // Models OBJ
+            if (troll.IsVisible())
+                renderer.Render(*troll.GetModel(),
+                    ComputeMVP(troll.GetTransform(), camera), t);
+
+            if (rock.IsVisible())
+                renderer.Render(*rock.GetModel(),
+                    ComputeMVP(rock.GetTransform(), camera), t);
+
+            if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+            {
+                generalView = true;
+
+                detailView = false;
+                dollyZoom = false;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+            {
+                detailView = true;
+
+                generalView = false;
+                dollyZoom = false;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+            {
+                dollyZoom = true;
+
+                generalView = false;
+                detailView = false;
+            }
+             
+            if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+            {
+                generalView = false;
+                detailView = false;
+                dollyZoom = false;
+
+                radius = defaultRadius;
+                pitch = defaultPitch;
+
+                camera.SetFOV(defaultFOV);
+            }
+
+           
         }
 
         glfwSwapBuffers(window);
     }
 
-    glDeleteProgram(program);
     glfwTerminate();
     return 0;
 }

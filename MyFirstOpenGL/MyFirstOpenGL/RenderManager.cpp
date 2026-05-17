@@ -1,0 +1,67 @@
+#include "RenderManager.h"
+#include <gtc/type_ptr.hpp>
+
+RenderManager::RenderManager()
+    : shaderProgram(0),
+    mvpLocation(-1),
+    objectTypeLocation(-1),
+    timeLocation(-1),
+    textureSamplerLocation(-1)
+{
+}
+
+void RenderManager::Initialize(
+    const char* vertexShaderPath,
+    const char* fragmentShaderPath)
+{
+    ShaderProgram shaders;
+    shaders.vertexShader = LoadVertexShader(vertexShaderPath);
+    shaders.fragmentShader = LoadFragmentShader(fragmentShaderPath);
+    shaderProgram = CreateProgram(shaders);
+
+    glUseProgram(shaderProgram);
+    mvpLocation = glGetUniformLocation(shaderProgram, "mvp");
+    objectTypeLocation = glGetUniformLocation(shaderProgram, "objectType");
+    timeLocation = glGetUniformLocation(shaderProgram, "time");
+    textureSamplerLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+}
+
+void RenderManager::Clear()
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+}
+
+void RenderManager::Render(
+    const Primitive& primitive,
+    const glm::mat4& mvp,
+    int              objectType,
+    float            time)
+{
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+    glUniform1i(objectTypeLocation, objectType);
+    glUniform1f(timeLocation, time);
+    primitive.Draw();
+}
+
+void RenderManager::Render(
+    const Model& model,
+    const glm::mat4& mvp,
+    float            time)
+{
+    glUseProgram(shaderProgram);
+    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+    glUniform1i(objectTypeLocation, 3);   
+    glUniform1f(timeLocation, time);
+
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, model.GetTextureID());
+    glUniform1i(textureSamplerLocation, 0);
+
+    model.Draw();
+}
+
+GLuint RenderManager::GetProgram() const
+{
+    return shaderProgram;
+}
