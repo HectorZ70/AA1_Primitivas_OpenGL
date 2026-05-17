@@ -1,61 +1,37 @@
 #include "Camera.h"
 
-Camera::Camera() 
-    : 
-	GameObject(),
-    fFov(70), 
-    aspectRatio(), 
-    viewMatrix(),
-    proMatrix(),
-    localVectorUp()
+Camera::Camera(float fov, float aspectRatio,
+    float nearPlane, float farPlane)
+    : fov(fov), aspectRatio(aspectRatio),
+    nearPlane(nearPlane), farPlane(farPlane)
 {
 }
 
-void Camera::SetFOV(const float& fov)
-{
-    fFov = fov;
-}
-
-float Camera::GetFOV() const
-{
-    return fFov;
-}
-
-void Camera::SetAspectRatio(const float& aRatio)
-{
-    aspectRatio = aRatio;
-}
-
-float Camera::GetAspectRatio() const
-{
-    return aspectRatio;
-}
-/*
-void Camera::SetLocalVectorUp(const glm::vec3& localVectorUp)
-{
-    lVectorUp = localVectorUp;
-}
-
-glm::vec3 Camera::GetLocalVectorUp() const
-{
-    return lVectorUp;
-}
-*/
-
-void Camera::SetViewMatrix(const glm::mat4& vMatrix) {
-    viewMatrix = vMatrix;
-}
+Transform& Camera::GetTransform() { return transform; }
+const Transform& Camera::GetTransform() const { return transform; }
 
 glm::mat4 Camera::GetViewMatrix() const
 {
-    return viewMatrix;
+    glm::vec3 pos = transform.GetPosition();
+    float yaw = transform.GetRotation().y;
+
+    glm::vec3 forward(sin(yaw), 0.0f, -cos(yaw));
+    glm::vec3 up(0.0f, 1.0f, 0.0f);
+
+    return glm::lookAt(pos, pos + forward, up);
 }
 
-void Camera::SetProyectionMatrix(const glm::mat4& pMatrix) {
-    proMatrix = pMatrix;
-}
-
-glm::mat4 Camera::GetProyectionMatrix() const
+glm::mat4 Camera::GetProjectionMatrix() const
 {
-    return proMatrix;
+    return glm::perspective(
+        glm::radians(fov),
+        aspectRatio,
+        nearPlane,
+        farPlane
+    );
 }
+
+void  Camera::SetFOV(float f) { fov = f; }
+float Camera::GetFOV()         const { return fov; }
+void  Camera::SetAspectRatio(float r) { aspectRatio = r; }
+float Camera::GetAspectRatio() const { return aspectRatio; }

@@ -1,36 +1,27 @@
 #include "RenderManager.h"
+#include <gtc/type_ptr.hpp>
 
 RenderManager::RenderManager()
-    : shaderProgram(0)
+    : shaderProgram(0),
+    mvpLocation(-1),
+    objectTypeLocation(-1),
+    timeLocation(-1)
 {
 }
 
 void RenderManager::Initialize(
     const char* vertexShaderPath,
-    const char* fragmentShaderPath
-)
+    const char* fragmentShaderPath)
 {
     ShaderProgram shaders;
-
-    shaders.vertexShader =
-        LoadVertexShader(vertexShaderPath);
-
-    shaders.fragmentShader =
-        LoadFragmentShader(fragmentShaderPath);
-
+    shaders.vertexShader = LoadVertexShader(vertexShaderPath);
+    shaders.fragmentShader = LoadFragmentShader(fragmentShaderPath);
     shaderProgram = CreateProgram(shaders);
 
     glUseProgram(shaderProgram);
-
-    // Uniforms
-    timeLocation =
-        glGetUniformLocation(shaderProgram, "time");
-
-    objectTypeLocation =
-        glGetUniformLocation(shaderProgram, "objectType");
-
-    positionLocation =
-        glGetUniformLocation(shaderProgram, "objectPosition");
+    mvpLocation = glGetUniformLocation(shaderProgram, "mvp");
+    objectTypeLocation = glGetUniformLocation(shaderProgram, "objectType");
+    timeLocation = glGetUniformLocation(shaderProgram, "time");
 }
 
 void RenderManager::Clear()
@@ -38,31 +29,17 @@ void RenderManager::Clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-void RenderManager::Render(GameObject& object, float time)
+void RenderManager::Render(
+    const Primitive& primitive,
+    const glm::mat4& mvp,
+    int              objectType,
+    float            time)
 {
-    if (!object.IsVisible())
-        return;
-
     glUseProgram(shaderProgram);
-
-    // Tiempo
+    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
+    glUniform1i(objectTypeLocation, objectType);
     glUniform1f(timeLocation, time);
-
-    // Tipo de objeto
-    glUniform1i(
-        objectTypeLocation,
-        object.GetObjectType()
-    );
-
-    // Posición del objeto
-    glUniform3f(
-        positionLocation,
-        object.GetPosition().x,
-        object.GetPosition().y,
-        object.GetPosition().z
-    );
-
-    object.Draw();
+    primitive.Draw();
 }
 
 GLuint RenderManager::GetProgram() const
