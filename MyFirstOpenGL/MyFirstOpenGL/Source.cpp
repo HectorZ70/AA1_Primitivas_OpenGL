@@ -104,12 +104,32 @@ int main()
     Camera camera(70.0f, ASPECT_RATIO);
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
+    glm::vec3 target = troll.GetTransform().GetPosition();
+
+    camera.SetTarget(target);
+
     InputManager input;
     SceneManager sceneManager;
     TimeManager  time;
 
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    float yaw = 0.0f;
+
+    float defaultRadius = 5.0f;
+    float defaultPitch = 20.0f;
+    float defaultFOV = 70.0f;
+
+    float radius = defaultRadius;
+    float pitch = defaultPitch;
+
+    float dollyDistance = 10.0f;
+    float dollySpeed = 2.0f;
+
+    bool generalView = false;
+    bool detailView = false;
+    bool dollyZoom = false;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -139,10 +159,80 @@ int main()
             glm::vec3(1.0f, 0.5f, 0.3f),
             glm::vec3(0.5f), blend));
 
+        //Rotación de la camara
+        glm::vec3 cameraPos;
+
+        if (!generalView &&
+            !detailView &&
+            !dollyZoom)
+        {
+            yaw += time.GetDeltaTime() * 50.0f;
+
+            cameraPos.x =
+                target.x +
+                radius *
+                cos(glm::radians(pitch)) *
+                cos(glm::radians(yaw));
+
+            cameraPos.y =
+                target.y +
+                radius *
+                sin(glm::radians(pitch));
+
+            cameraPos.z =
+                target.z +
+                radius *
+                cos(glm::radians(pitch)) *
+                sin(glm::radians(yaw));
+
+            camera.SetTarget(target);
+        }
+        else
+        {
+            // Plano general frontal
+            cameraPos =
+                target +
+                glm::vec3(0.0f, 2.0f, 10.0f);
+        }
+
+        if (dollyZoom)
+        {
+            dollyDistance -= time.GetDeltaTime() * dollySpeed;
+
+            if (dollyDistance < 2.0f)
+                dollyDistance = 10.0f;
+
+            cameraPos =
+                target +
+                glm::vec3(0.0f, 2.0f, dollyDistance);
+
+            float dynamicFOV =
+                glm::degrees(
+                    2.0f * atan(2.0f / dollyDistance)
+                );
+
+            camera.SetFOV(dynamicFOV);
+        }
+        if (detailView)
+        {
+            glm::vec3 headTarget =
+                target + glm::vec3(0.0f, 1.5f, 0.0f);
+
+            cameraPos =
+                headTarget +
+                glm::vec3(0.0f, 0.2f, 1.0f);
+
+            camera.SetTarget(headTarget);
+
+            camera.SetFOV(25.0f);
+        }
+
+        camera.GetTransform().SetPosition(cameraPos);
         renderer.Clear();
 
         if (sceneManager.IsGameScene())
         {
+            /*
             // Primitives
             if (input.ShowPyramid())
                 renderer.Render(*pyramid.GetPrimitive(),
@@ -158,7 +248,7 @@ int main()
                 renderer.Render(*ortho.GetPrimitive(),
                     ComputeMVP(ortho.GetTransform(), camera),
                     ortho.GetObjectType(), t);
-
+            */
             // Models OBJ
             if (troll.IsVisible())
                 renderer.Render(*troll.GetModel(),
@@ -167,6 +257,44 @@ int main()
             if (rock.IsVisible())
                 renderer.Render(*rock.GetModel(),
                     ComputeMVP(rock.GetTransform(), camera), t);
+
+            if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+            {
+                generalView = true;
+
+                detailView = false;
+                dollyZoom = false;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+            {
+                detailView = true;
+
+                generalView = false;
+                dollyZoom = false;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+            {
+                dollyZoom = true;
+
+                generalView = false;
+                detailView = false;
+            }
+             
+            if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
+            {
+                generalView = false;
+                detailView = false;
+                dollyZoom = false;
+
+                radius = defaultRadius;
+                pitch = defaultPitch;
+
+                camera.SetFOV(defaultFOV);
+            }
+
+           
         }
 
         glfwSwapBuffers(window);

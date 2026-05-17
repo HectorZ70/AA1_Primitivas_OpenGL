@@ -11,6 +11,7 @@ private:
     float     aspectRatio;
     float     nearPlane;
     float     farPlane;
+    glm::vec3 target;
 
 public:
     Camera(float fov, float aspectRatio,
@@ -27,4 +28,6 @@ public:
     float GetFOV()         const;
     void  SetAspectRatio(float ratio);
     float GetAspectRatio() const;
+    void SetTarget(const glm::vec3& t);
+    glm::vec3 GetTarget() const;
 };
