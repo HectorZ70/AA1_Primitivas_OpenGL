@@ -1,6 +1,7 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm.hpp>
+//#include <gtc/matrix_transform.hpp>
 
 #include "Utils.h"
 #include "GameObject.h"
@@ -8,6 +9,7 @@
 #include "TimeManager.h"
 #include "InputManager.h"
 #include "SceneManager.h"
+#include "Camera.h"
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -18,6 +20,8 @@ const float SPEED_DOWN_FACTOR = 0.9f;
 const glm::vec2 PYRAMID_OFFSET(0.6f, 0.0f);
 const glm::vec2 CUBE_OFFSET(-0.6f, 0.0f);
 const glm::vec2 ORTHO_OFFSET(0.0f, 0.0f);
+
+const glm::vec2 CAMERA_OFFSET(0.0f, 0.5f);
 
 
 int main()
@@ -151,6 +155,8 @@ int main()
     GameObject cube(&cubeMesh, 1);
     GameObject ortho(&orthoMesh, 2);
 
+    Camera camera;
+
     InputManager input;
     SceneManager sceneManager;
 
@@ -222,6 +228,24 @@ int main()
 
         ortho.SetScale(finalScale);
 
+        camera.SetPosition(glm::vec3(
+            CAMERA_OFFSET.x,
+            0.0f,
+            CAMERA_OFFSET.y
+        ));
+        
+        camera.SetRotation(glm::vec3(
+            0.0f, 
+            0.0f,
+            0.0f
+        ));
+/*
+        camera.SetViewMatrix(glm::lookAt(
+            camera.GetPosition(),
+            camera.GetPosition() + glm::vec3(0.f, 0.f, -1.f),
+            glm::vec3(0.f, 1.f, 0.f)
+            ));
+            */
         // Render
         renderer.Clear();
 
