@@ -10,12 +10,10 @@ class RenderManager
 private:
     GLuint shaderProgram;
 
-    // Uniforms compartidos
     GLint mvpLocation;
     GLint objectTypeLocation;
     GLint timeLocation;
 
-    // Uniform exclusivo de Model
     GLint textureSamplerLocation;
 
 public:
@@ -28,7 +26,7 @@ public:
 
     void Clear();
 
-    // Para Primitive (pirámide, cubo, ortoedro)
+    // Render Primitive
     void Render(
         const Primitive& primitive,
         const glm::mat4& mvp,
@@ -36,7 +34,7 @@ public:
         float            time
     );
 
-    // Para Model (OBJ con textura)
+    // Render Model
     void Render(
         const Model& model,
         const glm::mat4& mvp,

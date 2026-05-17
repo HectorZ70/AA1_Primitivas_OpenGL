@@ -16,6 +16,5 @@ GLuint      LoadVertexShader(const std::string& path);
 GLuint      LoadFragmentShader(const std::string& path);
 GLuint      CreateProgram(const ShaderProgram& shaders);
 
-// Nuevas utilidades
 Model  LoadOBJModel(const std::string& filePath);
 GLuint LoadTexture(const std::string& filePath);

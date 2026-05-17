@@ -55,7 +55,6 @@ int main()
         "MyFirstFragmentShader.glsl"
     );
 
-    // --- Primitives ---
     Primitive pyramidMesh;
     pyramidMesh.SetVerticesAndVariables(
         { -0.5f,0.0f,-0.5f,  0.5f,0.0f,-0.5f,
@@ -89,7 +88,6 @@ int main()
     GameObject cube(&cubeMesh, 1);
     GameObject ortho(&orthoMesh, 2);
 
-    // --- Models OBJ ---
     Model trollModel = LoadOBJModel("Assets/Modelos/troll.obj");
     Model rockModel = LoadOBJModel("Assets/Modelos/rock.obj");
     trollModel.SetTexture(LoadTexture("Assets/Texturas/troll.png"));
@@ -100,7 +98,6 @@ int main()
     troll.GetTransform().SetPosition(TROLL_OFFSET);
     rock.GetTransform().SetPosition(ROCK_OFFSET);
 
-    // --- Camera ---
     Camera camera(70.0f, ASPECT_RATIO);
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -232,23 +229,6 @@ int main()
 
         if (sceneManager.IsGameScene())
         {
-            /*
-            // Primitives
-            if (input.ShowPyramid())
-                renderer.Render(*pyramid.GetPrimitive(),
-                    ComputeMVP(pyramid.GetTransform(), camera),
-                    pyramid.GetObjectType(), t);
-
-            if (input.ShowCube())
-                renderer.Render(*cube.GetPrimitive(),
-                    ComputeMVP(cube.GetTransform(), camera),
-                    cube.GetObjectType(), t);
-
-            if (input.ShowOrtho())
-                renderer.Render(*ortho.GetPrimitive(),
-                    ComputeMVP(ortho.GetTransform(), camera),
-                    ortho.GetObjectType(), t);
-            */
             // Models OBJ
             if (troll.IsVisible())
                 renderer.Render(*troll.GetModel(),

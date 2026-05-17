@@ -51,10 +51,9 @@ void RenderManager::Render(
 {
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-    glUniform1i(objectTypeLocation, 3);   // objectType 3 = modelo OBJ
+    glUniform1i(objectTypeLocation, 3);   
     glUniform1f(timeLocation, time);
 
-    // Textura en unit 0
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, model.GetTextureID());
     glUniform1i(textureSamplerLocation, 0);

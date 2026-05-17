@@ -12,7 +12,6 @@ Model::Model(
 
     glBindVertexArray(vao);
 
-    // Vértices en location 0
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER,
         vertices.size() * sizeof(float),
@@ -21,7 +20,6 @@ Model::Model(
         3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // UVs en location 1
     glBindBuffer(GL_ARRAY_BUFFER, uvVBO);
     glBufferData(GL_ARRAY_BUFFER,
         uvs.size() * sizeof(float),
