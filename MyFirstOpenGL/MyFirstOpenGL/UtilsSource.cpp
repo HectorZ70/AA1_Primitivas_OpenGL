@@ -4,6 +4,105 @@
 #include <iostream>
 #include <vector>
 
+#include <sstream>
+#include <fstream>
+#include <glm.hpp>
+#include <stb_image.h>
+#include "Model.h"
+
+Model LoadOBJModel(const std::string& filePath)
+{
+    std::ifstream file(filePath);
+    if (!file.is_open())
+    {
+        std::cerr << "No se ha podido abrir: " << filePath << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
+    std::string line, prefix;
+    std::stringstream ss;
+    glm::vec3 tmpVec3;
+    glm::vec2 tmpVec2;
+
+    std::vector<float> tmpVertices, tmpNormals, tmpUVs;
+    std::vector<float> vertices, normals, uvs;
+
+    while (std::getline(file, line))
+    {
+        ss.clear(); ss.str(line);
+        ss >> prefix;
+
+        if (prefix == "v")
+        {
+            ss >> tmpVec3.x >> tmpVec3.y >> tmpVec3.z;
+            tmpVertices.insert(tmpVertices.end(),
+                { tmpVec3.x, tmpVec3.y, tmpVec3.z });
+        }
+        else if (prefix == "vt")
+        {
+            ss >> tmpVec2.x >> tmpVec2.y;
+            tmpUVs.insert(tmpUVs.end(), { tmpVec2.x, tmpVec2.y });
+        }
+        else if (prefix == "vn")
+        {
+            ss >> tmpVec3.x >> tmpVec3.y >> tmpVec3.z;
+            tmpNormals.insert(tmpNormals.end(),
+                { tmpVec3.x, tmpVec3.y, tmpVec3.z });
+        }
+        else if (prefix == "f")
+        {
+            int idx; short counter = 0;
+            while (ss >> idx)
+            {
+                switch (counter)
+                {
+                case 0:
+                    vertices.push_back(tmpVertices[(idx - 1) * 3]);
+                    vertices.push_back(tmpVertices[(idx - 1) * 3 + 1]);
+                    vertices.push_back(tmpVertices[(idx - 1) * 3 + 2]);
+                    ss.ignore(1, '/'); counter++; break;
+                case 1:
+                    uvs.push_back(tmpUVs[(idx - 1) * 2]);
+                    uvs.push_back(tmpUVs[(idx - 1) * 2 + 1]);
+                    ss.ignore(1, '/'); counter++; break;
+                case 2:
+                    normals.push_back(tmpNormals[(idx - 1) * 3]);
+                    normals.push_back(tmpNormals[(idx - 1) * 3 + 1]);
+                    normals.push_back(tmpNormals[(idx - 1) * 3 + 2]);
+                    counter = 0; break;
+                }
+            }
+        }
+    }
+    return Model(vertices, uvs, normals);
+}
+
+GLuint LoadTexture(const std::string& filePath)
+{
+    int w, h, ch;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* data = stbi_load(filePath.c_str(), &w, &h, &ch, 0);
+    if (!data)
+    {
+        std::cerr << "Error cargando textura: " << filePath << std::endl;
+        return 0;
+    }
+
+    GLuint id;
+    glGenTextures(1, &id);
+    glBindTexture(GL_TEXTURE_2D, id);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    GLenum fmt = (ch == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL_UNSIGNED_BYTE, data);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(data);
+    return id;
+}
+
 void ResizeWindow(GLFWwindow* window, int width, int height)
 {
     glViewport(0, 0, width, height);
