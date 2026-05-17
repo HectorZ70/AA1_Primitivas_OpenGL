@@ -12,6 +12,7 @@
 #include <sstream>
 #include <fstream>
 #include <iostream>
+#include <stb_image.h>
 
 const int WINDOW_WIDTH = 640;
 const int WINDOW_HEIGHT = 480;
@@ -137,9 +138,36 @@ int main()
 
     models.push_back(LoadOBJModel("Assets/Modelos/troll.obj"));
 
-    glEnable(GL_DEPTH_TEST);
+    glActiveTexture(GL_TEXTURE0);
 
-    RenderManager renderer;
+    int width, height, nrChannels;
+    stbi_set_flip_vertically_on_load(true);
+    unsigned char* textureInfo = stbi_load("Assets/Texturas/troll.png", &width, &height, &nrChannels, 0);
+    if (!textureInfo)
+        std::cerr << "Error cargando textura: " << stbi_failure_reason() << std::endl;
+
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    GLenum format = (nrChannels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, textureInfo);
+    glGenerateMipmap(GL_TEXTURE_2D);
+    stbi_image_free(textureInfo);
+
+    glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+    RenderManager renderer;   // también tienes esto duplicado, borra una copia
+    renderer.Initialize("MyFirstVertexShader.glsl", "MyFirstFragmentShader.glsl");
+
+    // DESPUÉS de Initialize ya tienes el shaderProgram disponible:
+    glUseProgram(renderer.GetProgram());
+    glUniform1i(glGetUniformLocation(renderer.GetProgram(), "textureSampler"), 0);
 
     renderer.Initialize(
         "MyFirstVertexShader.glsl",
@@ -257,9 +285,12 @@ int main()
     SceneManager sceneManager;
 
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     TimeManager time;
+
+
+
 
     while (!glfwWindowShouldClose(window))
     {
@@ -329,25 +360,8 @@ int main()
 
         if (sceneManager.IsGameScene())
         {
-            models[0].Render(renderer.GetProgram(), time.GetTime());
-
-            if (input.ShowPyramid())
-                renderer.Render(
-                    pyramid,
-                    time.GetTime()
-                );
-
-            if (input.ShowCube())
-                renderer.Render(
-                    cube,
-                    time.GetTime()
-                );
-
-            if (input.ShowOrtho())
-                renderer.Render(
-                    ortho,
-                    time.GetTime()
-                );
+            models[0].Render(renderer.GetProgram(), time.GetTime(), glm::vec3(-0.6f, 0.0f, 0.0f));
+            models[0].Render(renderer.GetProgram(), time.GetTime(), glm::vec3( 0.6f, 0.0f, 0.0f));
         }
         else if (sceneManager.IsEmptyScene())
         {

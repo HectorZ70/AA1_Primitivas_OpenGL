@@ -1,8 +1,10 @@
 #version 440 core
 
 layout(location = 0) in vec3 posicion;
+layout(location = 1) in vec2 uvsVertexShader;
 
 out vec3 fragPos;
+out vec2 uvsGeometryShader;
 uniform vec2 offset;
 uniform float time;
 uniform int objectType;
@@ -87,6 +89,7 @@ void main() {
 
     else if (objectType == 3)
 {
+uvsGeometryShader = uvsVertexShader;
     rotX = mat3(1.0);
     rotY = mat3(1.0);
     rotZ = mat3(1.0);
