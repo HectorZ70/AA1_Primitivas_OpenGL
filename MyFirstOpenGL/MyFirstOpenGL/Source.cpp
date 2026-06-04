@@ -207,7 +207,7 @@ int main()
             !detailView &&
             !dollyZoom)
         {
-            yaw += time.GetDeltaTime() * 50.0f;
+            //yaw += time.GetDeltaTime() * 50.0f;
 
             cameraPos.x =
                 target.x +
