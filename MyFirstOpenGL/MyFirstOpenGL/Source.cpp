@@ -28,6 +28,7 @@ const glm::vec3 TROLL_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ROCK_OFFSET(1.6f, 0.0f, 0.0f);
 const glm::vec3 DOG_OFFSET(0.0f, -.5f, 0.f);
 
+const float moveSpeed = 0.5f;
 
 void RandomizeTransform(ModelGameObject& obj,
     float minX, float maxX,
@@ -208,6 +209,25 @@ int main()
             !dollyZoom)
         {
             //yaw += time.GetDeltaTime() * 50.0f;
+
+            glm::vec3 forward(
+                cos(glm::radians(pitch))* cos(glm::radians(yaw)),
+                0.0f,
+                cos(glm::radians(pitch))* sin(glm::radians(yaw))
+            );
+            glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
+
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+                target += forward * moveSpeed * time.GetDeltaTime();
+
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+                target -= forward * moveSpeed * time.GetDeltaTime();
+
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+                target -= right * moveSpeed * time.GetDeltaTime();
+
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+                target += right * moveSpeed * time.GetDeltaTime();
 
             cameraPos.x =
                 target.x +
