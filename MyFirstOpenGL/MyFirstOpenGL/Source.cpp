@@ -28,6 +28,10 @@ const glm::vec3 TROLL_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ROCK_OFFSET(1.6f, 0.0f, 0.0f);
 const glm::vec3 DOG_OFFSET(0.0f, -.5f, 0.f);
 
+const float moveSpeed = 0.5f;
+double lastMouseX = WINDOW_WIDTH / 2.0;
+double lastMouseY = WINDOW_HEIGHT / 2.0;
+float mouseSensitivity = 0.1f;
 
 void RandomizeTransform(ModelGameObject& obj,
     float minX, float maxX,
@@ -67,11 +71,13 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
+
     GLFWwindow* window = glfwCreateWindow(
         WINDOW_WIDTH, WINDOW_HEIGHT,
         "Practica OpenGL", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, ResizeWindow);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     glewExperimental = GL_TRUE;
     glewInit();
@@ -208,6 +214,39 @@ int main()
             !dollyZoom)
         {
             //yaw += time.GetDeltaTime() * 50.0f;
+
+            glm::vec3 forward(
+                cos(glm::radians(pitch))* cos(glm::radians(yaw)),
+                0.0f,
+                cos(glm::radians(pitch))* sin(glm::radians(yaw))
+            );
+            glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
+
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+                target += forward * moveSpeed * time.GetDeltaTime();
+
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+                target -= forward * moveSpeed * time.GetDeltaTime();
+
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+                target -= right * moveSpeed * time.GetDeltaTime();
+
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+                target += right * moveSpeed * time.GetDeltaTime();
+
+            double mouseX, mouseY;
+            glfwGetCursorPos(window, &mouseX, &mouseY);
+
+            float deltaX = (float)(mouseX - lastMouseX) * mouseSensitivity;
+            float deltaY = (float)(mouseY - lastMouseY) * mouseSensitivity;
+
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+
+            yaw -= deltaX;
+            pitch += deltaY;
+
+            pitch = glm::clamp(pitch, -89.0f, 89.0f);
 
             cameraPos.x =
                 target.x +
