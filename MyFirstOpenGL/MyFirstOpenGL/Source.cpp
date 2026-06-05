@@ -312,7 +312,7 @@ int main()
             flashDir,
             glm::cos(glm::radians(12.5f)),
             glm::cos(glm::radians(20.0f)),
-            15.0f
+            5.0f
         );
 
         renderer.Clear();
