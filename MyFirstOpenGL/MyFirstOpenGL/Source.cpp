@@ -32,6 +32,8 @@ const float moveSpeed = 0.5f;
 double lastMouseX = WINDOW_WIDTH / 2.0;
 double lastMouseY = WINDOW_HEIGHT / 2.0;
 float mouseSensitivity = 0.1f;
+const float CYCLE_DURATION = 20.0f;
+const float ORBIT_RADIUS = 5.0f;
 
 void RandomizeTransform(ModelGameObject& obj,
     float minX, float maxX,
@@ -50,9 +52,9 @@ void RandomizeTransform(ModelGameObject& obj,
     ));
     obj.GetTransform().SetScale(glm::vec3(randRange(minScale, maxScale)));
     obj.GetTransform().SetRotation(glm::vec3(
-        randRange(0.0f, glm::two_pi<float>()),  // X
-        randRange(0.0f, glm::two_pi<float>()),  // Y
-        randRange(0.0f, glm::two_pi<float>())   // Z
+        randRange(0.0f, glm::two_pi<float>()),
+        randRange(0.0f, glm::two_pi<float>()),
+        randRange(0.0f, glm::two_pi<float>())
     ));
 }
 
@@ -70,7 +72,6 @@ int main()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
-
 
     GLFWwindow* window = glfwCreateWindow(
         WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -140,7 +141,6 @@ int main()
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
     glm::vec3 target = troll.GetTransform().GetPosition();
-
     camera.SetTarget(target);
 
     InputManager input;
@@ -166,6 +166,9 @@ int main()
     bool detailView = false;
     bool dollyZoom = false;
 
+    bool flashlightOn = false;
+    bool fKeyWasPressed = false;
+
     auto randRange = [](float min, float max) {
         return min + static_cast<float>(rand()) / RAND_MAX * (max - min);
         };
@@ -177,7 +180,6 @@ int main()
     target = troll.GetTransform().GetPosition();
     camera.SetTarget(target);
 
-
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -185,6 +187,37 @@ int main()
         time.Update();
 
         const float t = time.GetTime();
+
+        float cycleAngle = (t / CYCLE_DURATION) * glm::two_pi<float>();
+
+        glm::vec3 sunPos(
+            ORBIT_RADIUS * cos(cycleAngle),
+            ORBIT_RADIUS * sin(cycleAngle),
+            0.0f
+        );
+        glm::vec3 moonPos = -sunPos;
+        glm::vec3 sunDir = glm::normalize(sunPos);
+        glm::vec3 moonDir = glm::normalize(moonPos);
+
+        float sunIntensity = glm::smoothstep(0.0f, 0.3f, sunDir.y);
+        float moonIntensity = glm::smoothstep(0.0f, 0.3f, moonDir.y) * 0.4f;
+        float dayBlend = (sunDir.y + 1.0f) * 0.5f;
+
+        glm::vec3 nightAmbient(0.0f, 0.05f, 0.25f);
+        glm::vec3 dayAmbient(0.4f, 0.35f, 0.05f);
+        glm::vec3 ambientColor = glm::mix(nightAmbient, dayAmbient, dayBlend);
+        float     ambientStr = glm::mix(0.15f, 0.45f, dayBlend);
+
+        renderer.SetDayNightUniforms(
+            sunDir, sunIntensity,
+            moonDir, moonIntensity,
+            ambientColor, ambientStr
+        );
+
+        bool fKeyNow = glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS;
+        if (fKeyNow && !fKeyWasPressed)
+            flashlightOn = !flashlightOn;
+        fKeyWasPressed = fKeyNow;
 
         // Pyramid
         pyramid.GetTransform().SetPosition(
@@ -206,31 +239,23 @@ int main()
             glm::vec3(1.0f, 0.5f, 0.3f),
             glm::vec3(0.5f), blend));
 
-        //Rotación de la camara
         glm::vec3 cameraPos;
 
-        if (!generalView &&
-            !detailView &&
-            !dollyZoom)
+        if (!generalView && !detailView && !dollyZoom)
         {
-            //yaw += time.GetDeltaTime() * 50.0f;
-
             glm::vec3 forward(
-                cos(glm::radians(pitch))* cos(glm::radians(yaw)),
+                cos(glm::radians(pitch)) * cos(glm::radians(yaw)),
                 0.0f,
-                cos(glm::radians(pitch))* sin(glm::radians(yaw))
+                cos(glm::radians(pitch)) * sin(glm::radians(yaw))
             );
             glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
 
             if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
                 target += forward * moveSpeed * time.GetDeltaTime();
-
             if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
                 target -= forward * moveSpeed * time.GetDeltaTime();
-
             if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
                 target -= right * moveSpeed * time.GetDeltaTime();
-
             if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
                 target += right * moveSpeed * time.GetDeltaTime();
 
@@ -245,123 +270,92 @@ int main()
 
             yaw -= deltaX;
             pitch += deltaY;
-
             pitch = glm::clamp(pitch, -89.0f, 89.0f);
 
-            cameraPos.x =
-                target.x +
-                radius *
-                cos(glm::radians(pitch)) *
-                cos(glm::radians(yaw));
-
-            cameraPos.y =
-                target.y +
-                radius *
-                sin(glm::radians(pitch));
-
-            cameraPos.z =
-                target.z +
-                radius *
-                cos(glm::radians(pitch)) *
-                sin(glm::radians(yaw));
+            cameraPos.x = target.x + radius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+            cameraPos.y = target.y + radius * sin(glm::radians(pitch));
+            cameraPos.z = target.z + radius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
 
             camera.SetTarget(target);
         }
         else
         {
-            // Plano general frontal
-            cameraPos =
-                target +
-                glm::vec3(0.0f, 2.0f, 10.0f);
+            cameraPos = target + glm::vec3(0.0f, 2.0f, 10.0f);
         }
 
         if (dollyZoom)
         {
             dollyDistance -= time.GetDeltaTime() * dollySpeed;
-
             if (dollyDistance < 2.0f)
                 dollyDistance = 10.0f;
 
-            cameraPos =
-                target +
-                glm::vec3(0.0f, 2.0f, dollyDistance);
+            cameraPos = target + glm::vec3(0.0f, 2.0f, dollyDistance);
 
-            float dynamicFOV =
-                glm::degrees(
-                    2.0f * atan(2.0f / dollyDistance)
-                );
-
+            float dynamicFOV = glm::degrees(2.0f * atan(2.0f / dollyDistance));
             camera.SetFOV(dynamicFOV);
         }
+
         if (detailView)
         {
-            glm::vec3 headTarget =
-                target + glm::vec3(0.0f, 1.5f, 0.0f);
-
-            cameraPos =
-                headTarget +
-                glm::vec3(0.0f, 0.2f, 1.0f);
-
+            glm::vec3 headTarget = target + glm::vec3(0.0f, 1.5f, 0.0f);
+            cameraPos = headTarget + glm::vec3(0.0f, 0.2f, 1.0f);
             camera.SetTarget(headTarget);
-
             camera.SetFOV(25.0f);
         }
 
         camera.GetTransform().SetPosition(cameraPos);
+
+        glm::vec3 flashDir = glm::normalize(target - cameraPos);
+        renderer.SetFlashlightUniforms(
+            flashlightOn,
+            cameraPos,
+            flashDir,
+            glm::cos(glm::radians(12.5f)),
+            glm::cos(glm::radians(20.0f)),
+            15.0f
+        );
+
         renderer.Clear();
 
         if (sceneManager.IsGameScene())
         {
-            // Models OBJ
             if (troll.IsVisible())
                 renderer.Render(*troll.GetModel(),
-                    ComputeMVP(troll.GetTransform(), camera), t);
+                    ComputeMVP(troll.GetTransform(), camera),
+                    troll.GetTransform().GetModelMatrix(), t);
 
             if (rock.IsVisible())
                 renderer.Render(*rock.GetModel(),
-                    ComputeMVP(rock.GetTransform(), camera), t);
+                    ComputeMVP(rock.GetTransform(), camera),
+                    rock.GetTransform().GetModelMatrix(), t);
 
             if (dog.IsVisible())
                 renderer.Render(*dog.GetModel(),
-                    ComputeMVP(dog.GetTransform(), camera), t);
+                    ComputeMVP(dog.GetTransform(), camera),
+                    dog.GetTransform().GetModelMatrix(), t);
 
             if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             {
-                generalView = true;
-
-                detailView = false;
-                dollyZoom = false;
+                generalView = true;  detailView = false; dollyZoom = false;
             }
 
             if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
             {
-                detailView = true;
-
-                generalView = false;
-                dollyZoom = false;
+                detailView = true;   generalView = false; dollyZoom = false;
             }
 
             if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
             {
-                dollyZoom = true;
-
-                generalView = false;
-                detailView = false;
+                dollyZoom = true;    generalView = false; detailView = false;
             }
-             
+
             if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             {
-                generalView = false;
-                detailView = false;
-                dollyZoom = false;
-
+                generalView = false; detailView = false; dollyZoom = false;
                 radius = defaultRadius;
                 pitch = defaultPitch;
-
                 camera.SetFOV(defaultFOV);
             }
-
-           
         }
 
         glfwSwapBuffers(window);
