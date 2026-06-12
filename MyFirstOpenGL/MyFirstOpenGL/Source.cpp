@@ -15,6 +15,7 @@
 #include "SceneManager.h"
 #include "Camera.h"
 #include <chrono>
+#include <iostream>
 
 const int   WINDOW_WIDTH = 640;
 const int   WINDOW_HEIGHT = 480;
@@ -285,6 +286,24 @@ int main()
             if (dog.IsVisible())
                 renderer.Render(*dog.GetModel(),
                     ComputeMVP(dog.GetTransform(), camera), t);
+
+            if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && radius > 0.01f)
+            {
+                radius -= 0.0005f;
+            }
+
+            if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            {
+                radius += 0.0005f;
+            }
+            if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            {
+                yaw += time.GetDeltaTime() * 50.0f;
+            }
+            if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            {
+                yaw -= time.GetDeltaTime() * 50.0f;
+            }
 
             if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             {
