@@ -30,6 +30,37 @@ const glm::vec3 ROCK_OFFSET(1.6f, 0.0f, 0.0f);
 const glm::vec3 DOG_OFFSET(0.0f, -.5f, 0.f);
 
 
+float yaw = 0.0f;
+float pitch = 20.0f;
+float lastX = 0.0f;
+float lastY = 0.0f;
+bool  first = true;
+
+
+void MouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    if (first)
+    {
+        lastX = xpos;
+        lastY = ypos;
+        first = false;
+    }
+
+    float deltaX = xpos - lastX;
+    float deltaY = ypos - lastY;
+
+    lastX = xpos;
+    lastY = ypos;
+
+    float sensibilidad = 0.1f;
+    yaw += deltaX * sensibilidad;
+    pitch += deltaY * sensibilidad;
+
+    // Limitar camara para que no haga 360 grados
+    if (pitch > 89.0f) pitch = 89.0f;
+    if (pitch < -89.0f) pitch = -89.0f;
+}
+
 void RandomizeTransform(ModelGameObject& obj,
     float minX, float maxX,
     float minY, float maxY,
@@ -73,10 +104,12 @@ int main()
         "Practica OpenGL", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, ResizeWindow);
+    glfwSetCursorPosCallback(window, MouseCallback);
 
     glewExperimental = GL_TRUE;
     glewInit();
     glEnable(GL_DEPTH_TEST);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     RenderManager renderer;
     renderer.Initialize(
@@ -145,14 +178,11 @@ int main()
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-    float yaw = 0.0f;
 
     float defaultRadius = 5.0f;
-    float defaultPitch = 20.0f;
     float defaultFOV = 70.0f;
 
     float radius = defaultRadius;
-    float pitch = defaultPitch;
 
     float dollyDistance = 10.0f;
     float dollySpeed = 2.0f;
@@ -336,7 +366,7 @@ int main()
                 dollyZoom = false;
 
                 radius = defaultRadius;
-                pitch = defaultPitch;
+                pitch = 20.0f;
 
                 camera.SetFOV(defaultFOV);
             }
