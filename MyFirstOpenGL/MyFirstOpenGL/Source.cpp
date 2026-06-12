@@ -80,6 +80,7 @@ int main()
     RenderManager renderer;
     renderer.Initialize(
         "MyFirstVertexShader.glsl",
+        "MyFirstGeometryShader.glsl",
         "MyFirstFragmentShader.glsl"
     );
 

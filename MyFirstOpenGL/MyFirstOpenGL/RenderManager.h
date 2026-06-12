@@ -21,6 +21,7 @@ public:
 
     void Initialize(
         const char* vertexShaderPath,
+        const char* geometryShaderPath,
         const char* fragmentShaderPath
     );
 

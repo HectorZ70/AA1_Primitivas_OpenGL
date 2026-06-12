@@ -8,6 +8,7 @@ private:
     GLuint vao;
     GLuint vbo;
     GLuint uvVBO;
+    GLuint normalsVBO;
     GLuint textureID;
     unsigned int numVertices;
 

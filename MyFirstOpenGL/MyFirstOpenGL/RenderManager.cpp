@@ -12,10 +12,12 @@ RenderManager::RenderManager()
 
 void RenderManager::Initialize(
     const char* vertexShaderPath,
+    const char* geometryShaderPath,
     const char* fragmentShaderPath)
 {
     ShaderProgram shaders;
     shaders.vertexShader = LoadVertexShader(vertexShaderPath);
+    shaders.geometryShader = LoadGeometryShader(geometryShaderPath);
     shaders.fragmentShader = LoadFragmentShader(fragmentShaderPath);
     shaderProgram = CreateProgram(shaders);
 

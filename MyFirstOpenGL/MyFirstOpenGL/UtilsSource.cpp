@@ -149,6 +149,31 @@ GLuint LoadVertexShader(const std::string& path)
     return shader;
 }
 
+// GeometryShader
+GLuint LoadGeometryShader(const std::string& path)
+{
+    GLuint shader = glCreateShader(GL_GEOMETRY_SHADER);
+    std::string code = LoadFile(path);
+    const char* src = code.c_str();
+
+    glShaderSource(shader, 1, &src, nullptr);
+    glCompileShader(shader);
+
+    GLint success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+
+    if (!success) {
+        GLint len;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &len);
+        std::vector<char> log(len);
+        glGetShaderInfoLog(shader, len, nullptr, log.data());
+        std::cerr << "Geometry shader error: " << log.data() << std::endl;
+        exit(EXIT_FAILURE);
+    }
+
+    return shader;
+}
+
 // Fragment Shader
 GLuint LoadFragmentShader(const std::string& path)
 {
@@ -180,6 +205,9 @@ GLuint CreateProgram(const ShaderProgram& shaders)
 
     if (shaders.vertexShader)
         glAttachShader(program, shaders.vertexShader);
+    
+    if (shaders.geometryShader)
+        glAttachShader(program, shaders.geometryShader);
 
     if (shaders.fragmentShader)
         glAttachShader(program, shaders.fragmentShader);
