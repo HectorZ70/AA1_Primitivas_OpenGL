@@ -22,8 +22,26 @@ static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
 const glm::vec3 PYRAMID_OFFSET(0.6f, 0.0f, 0.0f);
 const glm::vec3 CUBE_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
-const glm::vec3 TROLL_OFFSET(-0.6f, 0.0f, 0.0f);
-const glm::vec3 ROCK_OFFSET(0.6f, 0.0f, 0.0f);
+const glm::vec3 TROLL_OFFSET(-1.5f, 0.0f, 0.0f);
+const glm::vec3 TROLL_OFFSET2(-0.5f, 0.0f, -2.0f);
+const glm::vec3 TROLL_OFFSET3(-0.5f, 0.0f, 2.0f);
+const float FIRE_RADIUS = 0.8f;
+
+// Posiciones en círculo (ángulos: 0°, 120°, 240°)
+const glm::vec3 ROCK_OFFSET(
+    FIRE_RADIUS* cos(glm::radians(0.0f)), 0.0f,
+    FIRE_RADIUS* sin(glm::radians(0.0f)));
+
+const glm::vec3 ROCK_OFFSET2(
+    FIRE_RADIUS* cos(glm::radians(120.0f)), 0.0f,
+    FIRE_RADIUS* sin(glm::radians(120.0f)));
+
+const glm::vec3 ROCK_OFFSET3(
+    FIRE_RADIUS* cos(glm::radians(240.0f)), 0.0f,
+    FIRE_RADIUS* sin(glm::radians(240.0f)));
+
+
+const glm::vec3 CLOUD_OFFSET(5.0f, 2.0f, 10.f);
 
 glm::mat4 ComputeMVP(const Transform& t, const Camera& cam)
 {
@@ -89,14 +107,47 @@ int main()
     GameObject ortho(&orthoMesh, 2);
 
     Model trollModel = LoadOBJModel("Assets/Modelos/troll.obj");
+    Model trollModel2 = LoadOBJModel("Assets/Modelos/troll.obj");
     Model rockModel = LoadOBJModel("Assets/Modelos/rock.obj");
     trollModel.SetTexture(LoadTexture("Assets/Texturas/troll.png"));
     rockModel.SetTexture(LoadTexture("Assets/Texturas/rock.png"));
 
     ModelGameObject troll(&trollModel);
+    ModelGameObject troll2(&trollModel);
+    ModelGameObject troll3(&trollModel);
     ModelGameObject rock(&rockModel);
+    ModelGameObject cloud(&rockModel);
     troll.GetTransform().SetPosition(TROLL_OFFSET);
+    troll2.GetTransform().SetPosition(TROLL_OFFSET2);
+    troll3.GetTransform().SetPosition(TROLL_OFFSET3);
+
+    troll.GetTransform().SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
+    troll2.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
+    troll3.GetTransform().SetRotation(glm::vec3(0.0f, -110.0f, 0.0f));
+
     rock.GetTransform().SetPosition(ROCK_OFFSET);
+    cloud.GetTransform().SetPosition(CLOUD_OFFSET);
+
+    ModelGameObject rock2(&rockModel);
+    ModelGameObject rock3(&rockModel);
+    rock2.GetTransform().SetPosition(ROCK_OFFSET2);
+    rock3.GetTransform().SetPosition(ROCK_OFFSET3);
+
+    rock.GetTransform().SetPosition(ROCK_OFFSET);
+    rock.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(0.0f), 0.0f));
+
+    rock2.GetTransform().SetPosition(ROCK_OFFSET2);
+    rock2.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(120.0f), 0.0f));
+
+    rock3.GetTransform().SetPosition(ROCK_OFFSET3);
+    rock3.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(240.0f), 0.0f));
+
+    rock.GetTransform().SetScale(glm::vec3(0.4f));
+    rock2.GetTransform().SetScale(glm::vec3(0.4f));
+    rock3.GetTransform().SetScale(glm::vec3(0.4f));
+
+    cloud.GetTransform().SetScale(glm::vec3(1.4f));
+    cloud.GetTransform().SetRotation(glm::vec3(120.0f, 0.f, 0.0f));
 
     Camera camera(70.0f, ASPECT_RATIO);
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -233,10 +284,30 @@ int main()
             if (troll.IsVisible())
                 renderer.Render(*troll.GetModel(),
                     ComputeMVP(troll.GetTransform(), camera), t);
+            
+            if (troll2.IsVisible())
+                renderer.Render(*troll2.GetModel(),
+                    ComputeMVP(troll2.GetTransform(), camera), t);
+
+            if (troll3.IsVisible())
+                renderer.Render(*troll3.GetModel(),
+                    ComputeMVP(troll3.GetTransform(), camera), t);
 
             if (rock.IsVisible())
                 renderer.Render(*rock.GetModel(),
                     ComputeMVP(rock.GetTransform(), camera), t);
+
+            if (rock2.IsVisible())
+                renderer.Render(*rock2.GetModel(),
+                    ComputeMVP(rock2.GetTransform(), camera), t);
+
+            if (rock3.IsVisible())
+                renderer.Render(*rock3.GetModel(),
+                    ComputeMVP(rock3.GetTransform(), camera), t);
+           
+            if (cloud.IsVisible())
+                renderer.Render(*cloud.GetModel(),
+                    ComputeMVP(cloud.GetTransform(), camera), t);
 
             if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             {
