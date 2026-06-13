@@ -16,6 +16,19 @@ private:
 
     GLint textureSamplerLocation;
 
+    // Light uniform locations
+    GLint modelLocation;
+    GLint normalMatrixLocation;
+    GLint ambientColorLocation;
+    GLint ambientIntensityLocation;
+    GLint flashlightPosLocation;
+    GLint flashlightDirLocation;
+    GLint flashlightColorLocation;
+    GLint flashlightCutoffLocation;
+    GLint flashlightOuterLocation;
+    GLint flashlightIntensityLocation;
+    GLint flashlightOnLocation;
+
 public:
     RenderManager();
 
@@ -41,6 +54,11 @@ public:
         const glm::mat4& mvp,
         float            time
     );
+
+    void SetLight(const glm::mat4& modelMatrix,
+        const glm::vec3& camPos,
+        const glm::vec3& camForward,
+        bool  flashOn);
 
     GLuint GetProgram() const;
 };
