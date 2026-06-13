@@ -186,6 +186,7 @@ int main()
     target = troll.GetTransform().GetPosition();
     camera.SetTarget(target);
 
+    bool wasGameScene = true;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -195,97 +196,100 @@ int main()
 
         const float t = time.GetTime();
 
-        // Pyramid
-        pyramid.GetTransform().SetPosition(
-            PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
-        pyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
-        pyramid.GetTransform().SetScale(glm::vec3(0.5f));
-
-        // Cube
-        cube.GetTransform().SetPosition(
-            CUBE_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
-        cube.GetTransform().SetRotation(glm::vec3(0.0f, t * 2.0f, 0.0f));
-        cube.GetTransform().SetScale(glm::vec3(0.5f));
-
-        // Ortho
-        float blend = (sin(t) + 1.0f) * 0.5f;
-        ortho.GetTransform().SetPosition(ORTHO_OFFSET);
-        ortho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t * 2.0f));
-        ortho.GetTransform().SetScale(glm::mix(
-            glm::vec3(1.0f, 0.5f, 0.3f),
-            glm::vec3(0.5f), blend));
-
-        //Rotación de la camara
-        glm::vec3 cameraPos;
-
-        if (!generalView &&
-            !detailView &&
-            !dollyZoom)
-        {
-            cameraPos.x =
-                target.x +
-                radius *
-                cos(glm::radians(pitch)) *
-                cos(glm::radians(yaw));
-
-            cameraPos.y =
-                target.y +
-                radius *
-                sin(glm::radians(pitch));
-
-            cameraPos.z =
-                target.z +
-                radius *
-                cos(glm::radians(pitch)) *
-                sin(glm::radians(yaw));
-
-            camera.SetTarget(target);
-        }
-        else
-        {
-            // Plano general frontal
-            cameraPos =
-                target +
-                glm::vec3(0.0f, 2.0f, 10.0f);
-        }
-
-        if (dollyZoom)
-        {
-            dollyDistance -= time.GetDeltaTime() * dollySpeed;
-
-            if (dollyDistance < 2.0f)
-                dollyDistance = 10.0f;
-
-            cameraPos =
-                target +
-                glm::vec3(0.0f, 2.0f, dollyDistance);
-
-            float dynamicFOV =
-                glm::degrees(
-                    2.0f * atan(2.0f / dollyDistance)
-                );
-
-            camera.SetFOV(dynamicFOV);
-        }
-        if (detailView)
-        {
-            glm::vec3 headTarget =
-                target + glm::vec3(0.0f, 1.5f, 0.0f);
-
-            cameraPos =
-                headTarget +
-                glm::vec3(0.0f, 0.2f, 1.0f);
-
-            camera.SetTarget(headTarget);
-
-            camera.SetFOV(25.0f);
-        }
-
-        camera.GetTransform().SetPosition(cameraPos);
         renderer.Clear();
 
         if (sceneManager.IsGameScene())
         {
+            wasGameScene = true;
+
+            // Pyramid
+            pyramid.GetTransform().SetPosition(
+                PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
+            pyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
+            pyramid.GetTransform().SetScale(glm::vec3(0.5f));
+
+            // Cube
+            cube.GetTransform().SetPosition(
+                CUBE_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
+            cube.GetTransform().SetRotation(glm::vec3(0.0f, t * 2.0f, 0.0f));
+            cube.GetTransform().SetScale(glm::vec3(0.5f));
+
+            // Ortho
+            float blend = (sin(t) + 1.0f) * 0.5f;
+            ortho.GetTransform().SetPosition(ORTHO_OFFSET);
+            ortho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t * 2.0f));
+            ortho.GetTransform().SetScale(glm::mix(
+                glm::vec3(1.0f, 0.5f, 0.3f),
+                glm::vec3(0.5f), blend));
+
+            //Rotación de la camara
+            glm::vec3 cameraPos;
+
+            if (!generalView &&
+                !detailView &&
+                !dollyZoom)
+            {
+                cameraPos.x =
+                    target.x +
+                    radius *
+                    cos(glm::radians(pitch)) *
+                    cos(glm::radians(yaw));
+
+                cameraPos.y =
+                    target.y +
+                    radius *
+                    sin(glm::radians(pitch));
+
+                cameraPos.z =
+                    target.z +
+                    radius *
+                    cos(glm::radians(pitch)) *
+                    sin(glm::radians(yaw));
+
+                camera.SetTarget(target);
+            }
+            else
+            {
+                // Plano general frontal
+                cameraPos =
+                    target +
+                    glm::vec3(0.0f, 2.0f, 10.0f);
+            }
+
+            if (dollyZoom)
+            {
+                dollyDistance -= time.GetDeltaTime() * dollySpeed;
+
+                if (dollyDistance < 2.0f)
+                    dollyDistance = 10.0f;
+
+                cameraPos =
+                    target +
+                    glm::vec3(0.0f, 2.0f, dollyDistance);
+
+                float dynamicFOV =
+                    glm::degrees(
+                        2.0f * atan(2.0f / dollyDistance)
+                    );
+
+                camera.SetFOV(dynamicFOV);
+            }
+            if (detailView)
+            {
+                glm::vec3 headTarget =
+                    target + glm::vec3(0.0f, 1.5f, 0.0f);
+
+                cameraPos =
+                    headTarget +
+                    glm::vec3(0.0f, 0.2f, 1.0f);
+
+                camera.SetTarget(headTarget);
+
+                camera.SetFOV(25.0f);
+            }
+
+            camera.GetTransform().SetPosition(cameraPos);
+
             // Models OBJ
             if (troll.IsVisible())
                 renderer.Render(*troll.GetModel(),
@@ -335,8 +339,19 @@ int main()
                 camera.SetFOV(defaultFOV);
             }
         }
-        else if (sceneManager.IsEmptyScene()) // Figures behaviours in the empty scene 
+        else if (sceneManager.IsEmptyScene()) // Figures in empty scene behaviour
         {
+
+            if (wasGameScene)
+            {
+                generalView = false;
+                detailView = false;
+                dollyZoom = false;
+                camera.SetFOV(defaultFOV);
+                input.Reset();
+                wasGameScene = false;
+            }
+
             camera.SetFOV(defaultFOV);
             camera.SetTarget(PRAC_CAM_TARGET);
             camera.GetTransform().SetPosition(PRAC_CAM_POS);
@@ -349,6 +364,7 @@ int main()
             pracCube.GetTransform().SetScale(glm::vec3(0.5f));
 
             // Ortho behaviour
+            float blend = (sin(t) + 1.0f) * 0.5f;
             pracOrtho.GetTransform().SetPosition(PRAC_ORTHO_OFFSET);
             pracOrtho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t));
             pracOrtho.GetTransform().SetScale(
