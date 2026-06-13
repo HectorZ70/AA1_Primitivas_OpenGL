@@ -28,6 +28,15 @@ const glm::vec3 TROLL_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ROCK_OFFSET(1.6f, 0.0f, 0.0f);
 const glm::vec3 DOG_OFFSET(0.0f, -.5f, 0.f);
 
+const glm::vec3 PRAC_CUBE_OFFSET(-1.2f, 0.0f, 0.0f);
+const glm::vec3 PRAC_ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
+const glm::vec3 PRAC_PYRAMID_OFFSET(1.2f, 0.0f, 0.0f);
+const float BOUNCE_AMPLITUDE = 0.5f;
+const glm::vec3 ORTHO_BASE_SCALE(1.0f, 0.5f, 0.3f);
+const glm::vec3 ORTHO_CUBE_SCALE(0.5f, 0.5f, 0.5f);
+const glm::vec3 PRAC_CAM_POS(0.0f, 0.0f, 4.0f);
+const glm::vec3 PRAC_CAM_TARGET(0.0f, 0.0f, 0.0f);
+
 
 void RandomizeTransform(ModelGameObject& obj,
     float minX, float maxX,
@@ -46,9 +55,9 @@ void RandomizeTransform(ModelGameObject& obj,
     ));
     obj.GetTransform().SetScale(glm::vec3(randRange(minScale, maxScale)));
     obj.GetTransform().SetRotation(glm::vec3(
-        randRange(0.0f, glm::two_pi<float>()),  // X
-        randRange(0.0f, glm::two_pi<float>()),  // Y
-        randRange(0.0f, glm::two_pi<float>())   // Z
+        randRange(0.0f, glm::two_pi<float>()),
+        randRange(0.0f, glm::two_pi<float>()),
+        randRange(0.0f, glm::two_pi<float>())
     ));
 }
 
@@ -116,6 +125,11 @@ int main()
     GameObject pyramid(&pyramidMesh, 0);
     GameObject cube(&cubeMesh, 1);
     GameObject ortho(&orthoMesh, 2);
+
+    GameObject pracCube(&cubeMesh, 0);
+    GameObject pracOrtho(&orthoMesh, 1);
+    GameObject pracPyramid(&pyramidMesh, 2);
+
 
     Model trollModel = LoadOBJModel("Assets/Modelos/troll.obj");
     Model rockModel = LoadOBJModel("Assets/Modelos/rock.obj");
@@ -208,8 +222,6 @@ int main()
             !detailView &&
             !dollyZoom)
         {
-            //yaw += time.GetDeltaTime() * 50.0f;
-
             cameraPos.x =
                 target.x +
                 radius *
@@ -310,7 +322,7 @@ int main()
                 generalView = false;
                 detailView = false;
             }
-             
+
             if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             {
                 generalView = false;
@@ -322,8 +334,50 @@ int main()
 
                 camera.SetFOV(defaultFOV);
             }
+        }
+        else if (sceneManager.IsEmptyScene()) // Figures behaviours in the empty scene 
+        {
+            camera.SetFOV(defaultFOV);
+            camera.SetTarget(PRAC_CAM_TARGET);
+            camera.GetTransform().SetPosition(PRAC_CAM_POS);
 
-           
+            // Cube behaviour
+            pracCube.GetTransform().SetPosition(
+                PRAC_CUBE_OFFSET +
+                glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
+            pracCube.GetTransform().SetRotation(glm::vec3(0.0f, t, 0.0f));
+            pracCube.GetTransform().SetScale(glm::vec3(0.5f));
+
+            // Ortho behaviour
+            pracOrtho.GetTransform().SetPosition(PRAC_ORTHO_OFFSET);
+            pracOrtho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t));
+            pracOrtho.GetTransform().SetScale(
+                glm::mix(ORTHO_BASE_SCALE, ORTHO_CUBE_SCALE, blend));
+
+            // Pyramid behaviour
+            pracPyramid.GetTransform().SetPosition(
+                PRAC_PYRAMID_OFFSET +
+                glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
+            pracPyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
+            pracPyramid.GetTransform().SetScale(glm::vec3(0.5f));
+
+            if (input.ShowCube())
+                renderer.Render(
+                    *pracCube.GetPrimitive(),
+                    ComputeMVP(pracCube.GetTransform(), camera),
+                    pracCube.GetObjectType(), t);
+
+            if (input.ShowOrtho())
+                renderer.Render(
+                    *pracOrtho.GetPrimitive(),
+                    ComputeMVP(pracOrtho.GetTransform(), camera),
+                    pracOrtho.GetObjectType(), t);
+
+            if (input.ShowPyramid())
+                renderer.Render(
+                    *pracPyramid.GetPrimitive(),
+                    ComputeMVP(pracPyramid.GetTransform(), camera),
+                    pracPyramid.GetObjectType(), t);
         }
 
         glfwSwapBuffers(window);
