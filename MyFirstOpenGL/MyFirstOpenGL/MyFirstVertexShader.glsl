@@ -6,12 +6,15 @@ layout(location = 2) in vec3 normalsVertexShader;
 
 out vec2 uvsGeometryShader;
 out vec3 normalsGeometryShader;
+out vec3 worldPositionGeometryShader;
 
 uniform mat4 mvp;
+uniform mat4 model;
+uniform mat3 normalMatrix;
 
 void main() {
     uvsGeometryShader = uvsVertexShader;
-    normalsGeometryShader = normalsVertexShader;
-
+    normalsGeometryShader = normalMatrix * normalsVertexShader; // <-- THIS WAS MISSING
+    worldPositionGeometryShader = vec3(model * vec4(position, 1.0));
     gl_Position = mvp * vec4(position, 1.0);
 }

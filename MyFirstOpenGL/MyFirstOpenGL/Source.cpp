@@ -187,6 +187,7 @@ int main()
     camera.SetTarget(target);
 
     bool wasGameScene = true;
+    bool flashOn = true;
 
     while (!glfwWindowShouldClose(window))
     {
@@ -200,8 +201,45 @@ int main()
 
         if (sceneManager.IsGameScene())
         {
-            wasGameScene = true;
+            wasGameScene = true; 
 
+            static bool fWasPressed = false;
+            bool fPressed = glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS;
+            if (fPressed && !fWasPressed) flashOn = !flashOn;
+            fWasPressed = fPressed;
+
+            glm::vec3 camPos = camera.GetTransform().GetPosition();
+            glm::vec3 camForward = glm::normalize(camera.GetTarget() - camPos);
+
+            if (troll.IsVisible()) {
+                renderer.SetLight(troll.GetTransform().GetModelMatrix(), camPos, camForward, flashOn);
+                renderer.Render(*troll.GetModel(), ComputeMVP(troll.GetTransform(), camera), t);
+            }
+            if (rock.IsVisible()) {
+                renderer.SetLight(rock.GetTransform().GetModelMatrix(), camPos, camForward, flashOn);
+                renderer.Render(*rock.GetModel(), ComputeMVP(rock.GetTransform(), camera), t);
+            }
+            if (dog.IsVisible()) {
+                renderer.SetLight(dog.GetTransform().GetModelMatrix(), camPos, camForward, flashOn);
+                renderer.Render(*dog.GetModel(), ComputeMVP(dog.GetTransform(), camera), t);
+            }
+
+            /*
+            // Get camera forward from the view matrix (third column negated)
+            glm::vec3 camForward = -glm::vec3(camera.GetViewMatrix()[0][2],
+                camera.GetViewMatrix()[1][2],
+                camera.GetViewMatrix()[2][2]);
+            glm::vec3 camPos = camera.GetTransform().GetPosition();
+
+            // Before each Render() call:
+            renderer.SetLight(
+                troll.GetTransform().GetModelMatrix(),
+                camPos,
+                camForward,
+                flashOn
+            );
+            */
+            
             // Pyramid
             pyramid.GetTransform().SetPosition(
                 PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
