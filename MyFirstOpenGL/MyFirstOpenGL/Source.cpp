@@ -283,31 +283,35 @@ int main()
             // Models OBJ
             if (troll.IsVisible())
                 renderer.Render(*troll.GetModel(),
-                    ComputeMVP(troll.GetTransform(), camera), t);
+                    ComputeMVP(troll.GetTransform(), camera), t, 3,
+                    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 1.0f);
+
             
             if (troll2.IsVisible())
                 renderer.Render(*troll2.GetModel(),
-                    ComputeMVP(troll2.GetTransform(), camera), t);
+                    ComputeMVP(troll2.GetTransform(), camera), t, 3);
 
             if (troll3.IsVisible())
                 renderer.Render(*troll3.GetModel(),
-                    ComputeMVP(troll3.GetTransform(), camera), t);
+                    ComputeMVP(troll3.GetTransform(), camera), t, 3,
+                glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 1.0f);
 
             if (rock.IsVisible())
                 renderer.Render(*rock.GetModel(),
-                    ComputeMVP(rock.GetTransform(), camera), t);
+                    ComputeMVP(rock.GetTransform(), camera), t, 3);
 
             if (rock2.IsVisible())
                 renderer.Render(*rock2.GetModel(),
-                    ComputeMVP(rock2.GetTransform(), camera), t);
+                    ComputeMVP(rock2.GetTransform(), camera), t, 3);
 
             if (rock3.IsVisible())
                 renderer.Render(*rock3.GetModel(),
-                    ComputeMVP(rock3.GetTransform(), camera), t);
+                    ComputeMVP(rock3.GetTransform(), camera), t, 3);
            
             if (cloud.IsVisible())
                 renderer.Render(*cloud.GetModel(),
-                    ComputeMVP(cloud.GetTransform(), camera), t);
+                    ComputeMVP(cloud.GetTransform(), camera), t,
+                    4, glm::vec4(0.3f, 0.3f, 0.3f, .3f), 1.0f);
 
             if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             {

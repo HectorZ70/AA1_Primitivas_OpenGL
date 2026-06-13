@@ -14,7 +14,11 @@ private:
     GLint objectTypeLocation;
     GLint timeLocation;
 
+    int objectType = 3;
+
     GLint textureSamplerLocation;
+    GLuint tint;
+    GLuint tintStrenght;
 
 public:
     RenderManager();
@@ -38,8 +42,10 @@ public:
     void Render(
         const Model& model,
         const glm::mat4& mvp,
-        float            time
+        float            time,
+        int objectType,
+        glm::vec4        tintColor = glm::vec4(1.0f),
+        float            tintStrenghtValue = 0.0f
     );
-
     GLuint GetProgram() const;
 };

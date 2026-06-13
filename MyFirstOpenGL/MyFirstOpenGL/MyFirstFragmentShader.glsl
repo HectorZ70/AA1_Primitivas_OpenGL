@@ -8,13 +8,22 @@ out vec4 FragColor;
 uniform int objectType;
 uniform float time;
 uniform sampler2D textureSampler;
+uniform vec4 tint;
+uniform float tintStreght;
 
 void main()
 {
-    // OBJ con textura
-    if (objectType == 3)
+
+    if (objectType == 4)
     {
-        FragColor = texture(textureSampler, uvsGeometryShader);
+        FragColor = vec4(tintStreght, 1.0, 0.0, 0.0);
+    }
+
+    // OBJ con textura
+    else if (objectType == 3)
+    {
+        vec4 texColor = texture(textureSampler, uvsGeometryShader);
+        FragColor = texColor * mix(vec4(1.0), tint, tintStreght);
     }
 
     // Pirámide RGB animada

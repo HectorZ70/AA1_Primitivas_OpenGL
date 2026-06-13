@@ -24,6 +24,8 @@ void RenderManager::Initialize(
     objectTypeLocation = glGetUniformLocation(shaderProgram, "objectType");
     timeLocation = glGetUniformLocation(shaderProgram, "time");
     textureSamplerLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+    tint = glGetUniformLocation(shaderProgram, "tint");
+    tintStrenght = glGetUniformLocation(shaderProgram, "tintStreght");
 }
 
 void RenderManager::Clear()
@@ -47,17 +49,22 @@ void RenderManager::Render(
 void RenderManager::Render(
     const Model& model,
     const glm::mat4& mvp,
-    float            time)
+    float            time,
+    int objectType,
+    glm::vec4        tintColor,
+    float            tintStrenghtValue)
 {
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-    glUniform1i(objectTypeLocation, 3);   
+    glUniform1i(objectTypeLocation, objectType);
+    glUniform1i(objectTypeLocation, 3);
     glUniform1f(timeLocation, time);
+    glUniform4fv(tint, 1, glm::value_ptr(tintColor));      // location=tint, valor=tintColor
+    glUniform1f(tintStrenght, tintStrenghtValue);           // location=tintStrenght, valor=tintStrenghtValue
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, model.GetTextureID());
     glUniform1i(textureSamplerLocation, 0);
-
     model.Draw();
 }
 
