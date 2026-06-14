@@ -6,12 +6,7 @@ RenderManager::RenderManager()
     : shaderProgram(0),
     mvpLocation(-1), objectTypeLocation(-1),
     timeLocation(-1), textureSamplerLocation(-1),
-    modelLocation(-1), normalMatrixLocation(-1),
-    ambientColorLocation(-1), ambientIntensityLocation(-1),
-    flashlightPosLocation(-1), flashlightDirLocation(-1),
-    flashlightColorLocation(-1), flashlightCutoffLocation(-1),
-    flashlightOuterLocation(-1), flashlightIntensityLocation(-1),
-    flashlightOnLocation(-1)
+    modelLocation(-1), normalMatrixLocation(-1)
 {
 }
 
@@ -35,15 +30,8 @@ void RenderManager::Initialize(
     // Lighting
     modelLocation = glGetUniformLocation(shaderProgram, "model");
     normalMatrixLocation = glGetUniformLocation(shaderProgram, "normalMatrix");
-    ambientColorLocation = glGetUniformLocation(shaderProgram, "ambientColor");
-    ambientIntensityLocation = glGetUniformLocation(shaderProgram, "ambientIntensity");
-    flashlightPosLocation = glGetUniformLocation(shaderProgram, "flashlightPos");
-    flashlightDirLocation = glGetUniformLocation(shaderProgram, "flashlightDir");
-    flashlightColorLocation = glGetUniformLocation(shaderProgram, "flashlightColor");
-    flashlightCutoffLocation = glGetUniformLocation(shaderProgram, "flashlightCutoff");
-    flashlightOuterLocation = glGetUniformLocation(shaderProgram, "flashlightOuter");
-    flashlightIntensityLocation = glGetUniformLocation(shaderProgram, "flashlightIntensity");
-    flashlightOnLocation = glGetUniformLocation(shaderProgram, "flashlightOn");
+    ambientLight.Initialize(shaderProgram);
+    flashlight.Initialize(shaderProgram);
 }
 
 void RenderManager::Clear()
@@ -63,18 +51,21 @@ void RenderManager::SetLight(
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
     glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
 
-    // Ambient: dim bluish night sky feel
-    glUniform3f(ambientColorLocation, 0.15f, 0.15f, 0.2f);
-    glUniform1f(ambientIntensityLocation, 1.0f);
+    flashlight.SetOn(flashOn);
+    flashlight.Update(camPos, camForward);
 
-    // Flashlight
-    glUniform3f(flashlightPosLocation, camPos.x, camPos.y, camPos.z);
-    glUniform3f(flashlightDirLocation, camForward.x, camForward.y, camForward.z);
-    glUniform3f(flashlightColorLocation, 1.0f, 0.95f, 0.85f);
-    glUniform1f(flashlightCutoffLocation, glm::cos(glm::radians(15.0f)));
-    glUniform1f(flashlightOuterLocation, glm::cos(glm::radians(22.0f)));
-    glUniform1f(flashlightIntensityLocation, 3.0f);
-    glUniform1i(flashlightOnLocation, flashOn ? 1 : 0);
+    ambientLight.Apply();
+    flashlight.Apply();
+}
+
+Light& RenderManager::GetLight()
+{
+    return ambientLight;
+}
+
+Flashlight& RenderManager::GetFlashlight()
+{
+    return flashlight;
 }
 
 void RenderManager::Render(

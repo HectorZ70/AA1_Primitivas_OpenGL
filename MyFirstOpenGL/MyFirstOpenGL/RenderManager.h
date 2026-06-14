@@ -4,6 +4,8 @@
 #include "Primitive.h"
 #include "Model.h"
 #include "Utils.h"
+#include "Light.h"
+#include "Flashlight.h"
 
 class RenderManager
 {
@@ -16,18 +18,12 @@ private:
 
     GLint textureSamplerLocation;
 
-    // Light uniform locations
+    // Model/normal matrix uniform locations (used for lighting)
     GLint modelLocation;
     GLint normalMatrixLocation;
-    GLint ambientColorLocation;
-    GLint ambientIntensityLocation;
-    GLint flashlightPosLocation;
-    GLint flashlightDirLocation;
-    GLint flashlightColorLocation;
-    GLint flashlightCutoffLocation;
-    GLint flashlightOuterLocation;
-    GLint flashlightIntensityLocation;
-    GLint flashlightOnLocation;
+
+    Light ambientLight;
+    Flashlight flashlight;
 
 public:
     RenderManager();
@@ -59,6 +55,9 @@ public:
         const glm::vec3& camPos,
         const glm::vec3& camForward,
         bool  flashOn);
+
+    Light& GetLight();
+    Flashlight& GetFlashlight();
 
     GLuint GetProgram() const;
 };
