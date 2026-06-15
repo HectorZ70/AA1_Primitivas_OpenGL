@@ -12,6 +12,8 @@ Para poder hacer las caras del cubo se ha preguntado a la IA para poder numerarl
 
 También para sacar la función getKey se ha usado IA (Sacado con el siguiente promp: Que función hace que obtenga los inputs del usuario?)
 
+Se ha usado también para sacar las posciones de los objetos para recrear parcialmente la escena de ejemplo de entrega AA3. Le hemos pedido a la IA que nos diga las posiciones de cada objeto para poder ponerlas mas rápidamente.
+
 Durante el proceso de creación del componente de la cámara surgió el error "símbolo externo "public: __cdecl Camera::Camera(void)" (??0Camera@@QEAA@XZ) sin resolver al que se hace referencia en la función main" al cuál se pidió la información sobre este a la IA, a lo que respondió: 
 El .cpp existe pero no está incluido en el proyecto
 
