@@ -4,14 +4,12 @@
 
 RenderManager::RenderManager()
     : shaderProgram(0),
-    mvpLocation(-1), objectTypeLocation(-1),
-    timeLocation(-1), textureSamplerLocation(-1),
-    modelLocation(-1), normalMatrixLocation(-1)
     mvpLocation(-1),
     modelLocation(-1),
     objectTypeLocation(-1),
     timeLocation(-1),
     textureSamplerLocation(-1),
+    normalMatrixLocation(-1),
     sunDirectionLoc(-1),
     moonDirectionLoc(-1),
     sunIntensityLoc(-1),
@@ -39,24 +37,21 @@ void RenderManager::Initialize(
     shaderProgram = CreateProgram(shaders);
     glUseProgram(shaderProgram);
 
-    glUseProgram(shaderProgram);
-
+    // Base
     mvpLocation = glGetUniformLocation(shaderProgram, "mvp");
     modelLocation = glGetUniformLocation(shaderProgram, "model");
     objectTypeLocation = glGetUniformLocation(shaderProgram, "objectType");
     timeLocation = glGetUniformLocation(shaderProgram, "time");
     textureSamplerLocation = glGetUniformLocation(shaderProgram, "textureSampler");
 
-    // Tint (feature/CameraComponent)
+    // HEAD: tint + normal matrix + sistema de luz clásico
     tint = glGetUniformLocation(shaderProgram, "tint");
     tintStrenght = glGetUniformLocation(shaderProgram, "tintStreght");
-
-    // Lighting (HEAD)
-    modelLocation = glGetUniformLocation(shaderProgram, "model");
     normalMatrixLocation = glGetUniformLocation(shaderProgram, "normalMatrix");
     ambientLight.Initialize(shaderProgram);
     flashlight.Initialize(shaderProgram);
 
+    // develop: día/noche
     sunDirectionLoc = glGetUniformLocation(shaderProgram, "sunDirection");
     moonDirectionLoc = glGetUniformLocation(shaderProgram, "moonDirection");
     sunIntensityLoc = glGetUniformLocation(shaderProgram, "sunIntensity");
@@ -64,6 +59,7 @@ void RenderManager::Initialize(
     ambientColorLoc = glGetUniformLocation(shaderProgram, "ambientColor");
     ambientStrengthLoc = glGetUniformLocation(shaderProgram, "ambientStrength");
 
+    // develop: linterna extendida
     flashlightOnLoc = glGetUniformLocation(shaderProgram, "flashlightOn");
     flashlightPosLoc = glGetUniformLocation(shaderProgram, "flashlightPos");
     flashlightDirLoc = glGetUniformLocation(shaderProgram, "flashlightDir");
@@ -77,6 +73,7 @@ void RenderManager::Clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+// ── HEAD: SetLight ──────────────────────────────────────────────────────────
 void RenderManager::SetLight(
     const glm::mat4& modelMatrix,
     const glm::vec3& camPos,
@@ -96,6 +93,7 @@ void RenderManager::SetLight(
 Light& RenderManager::GetLight() { return ambientLight; }
 Flashlight& RenderManager::GetFlashlight() { return flashlight; }
 
+// ── develop: SetDayNightUniforms ────────────────────────────────────────────
 void RenderManager::SetDayNightUniforms(
     const glm::vec3& sunDir, float sunIntensity,
     const glm::vec3& moonDir, float moonIntensity,
@@ -110,6 +108,7 @@ void RenderManager::SetDayNightUniforms(
     glUniform1f(ambientStrengthLoc, ambStrength);
 }
 
+// ── develop: SetFlashlightUniforms ─────────────────────────────────────────
 void RenderManager::SetFlashlightUniforms(
     bool on,
     const glm::vec3& pos,
@@ -127,10 +126,10 @@ void RenderManager::SetFlashlightUniforms(
     glUniform1f(flashlightRangeLoc, range);
 }
 
+// ── Render Primitive ────────────────────────────────────────────────────────
 void RenderManager::Render(
     const Primitive& primitive,
     const glm::mat4& mvp,
-    int objectType, float time)
     const glm::mat4& model,
     int objectType, float time)
 {
@@ -142,31 +141,26 @@ void RenderManager::Render(
     primitive.Draw();
 }
 
+// ── Render Model OBJ ───────────────────────────────────────────────────────
 void RenderManager::Render(
-    const Model& model,
-    const glm::mat4& mvp,
+    const Model& modelObj,
+    const glm::mat4& mvpMat,
+    const glm::mat4& modelMat,
     float            time,
     int              objectType,
     glm::vec4        tintColor,
     float            tintStrenghtValue)
-    const Model& modelObj,
-    const glm::mat4& mvpMat,
-    const glm::mat4& modelMat,
-    float time)
 {
     glUseProgram(shaderProgram);
-    glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-    glUniform1i(objectTypeLocation, objectType);   // usa el par�metro, no hardcoded 3
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvpMat));
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(modelMat));
-    glUniform1i(objectTypeLocation, 3);
+    glUniform1i(objectTypeLocation, objectType);
     glUniform1f(timeLocation, time);
     glUniform4fv(tint, 1, glm::value_ptr(tintColor));
     glUniform1f(tintStrenght, tintStrenghtValue);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, modelObj.GetTextureID());
     glUniform1i(textureSamplerLocation, 0);
-    model.Draw();
     modelObj.Draw();
 }
 

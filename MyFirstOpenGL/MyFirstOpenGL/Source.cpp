@@ -18,25 +18,19 @@
 
 const int   WINDOW_WIDTH = 640;
 const int   WINDOW_HEIGHT = 480;
-const float ASPECT_RATIO =
-static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
+const float ASPECT_RATIO = static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
 
+// Primitivas
 const glm::vec3 PYRAMID_OFFSET(0.6f, 0.0f, 0.0f);
 const glm::vec3 CUBE_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
 
-// Troll positions
+// Trolls
 const glm::vec3 TROLL_OFFSET(-1.5f, 0.0f, 0.0f);
 const glm::vec3 TROLL_OFFSET2(-0.5f, 0.0f, -2.0f);
 const glm::vec3 TROLL_OFFSET3(-0.5f, 0.0f, 2.0f);
-const float moveSpeed = 0.5f;
-double lastMouseX = WINDOW_WIDTH / 2.0;
-double lastMouseY = WINDOW_HEIGHT / 2.0;
-float mouseSensitivity = 0.1f;
-const float CYCLE_DURATION = 20.0f;
-const float ORBIT_RADIUS = 5.0f;
 
-// Rocks in a circle
+// Rocas en círculo
 const float FIRE_RADIUS = 0.8f;
 const glm::vec3 ROCK_OFFSET(
     FIRE_RADIUS* cos(glm::radians(0.0f)), 0.0f,
@@ -51,45 +45,51 @@ const glm::vec3 ROCK_OFFSET3(
 const glm::vec3 DOG_OFFSET(0.0f, -0.5f, 0.0f);
 const glm::vec3 CLOUD_OFFSET(5.0f, 2.0f, 10.0f);
 
+// Escena vacía
 const glm::vec3 PRAC_CUBE_OFFSET(-1.2f, 0.0f, 0.0f);
 const glm::vec3 PRAC_ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
 const glm::vec3 PRAC_PYRAMID_OFFSET(1.2f, 0.0f, 0.0f);
-const float BOUNCE_AMPLITUDE = 0.5f;
+const float     BOUNCE_AMPLITUDE = 0.5f;
 const glm::vec3 ORTHO_BASE_SCALE(1.0f, 0.5f, 0.3f);
 const glm::vec3 ORTHO_CUBE_SCALE(0.5f, 0.5f, 0.5f);
 const glm::vec3 PRAC_CAM_POS(0.0f, 0.0f, 4.0f);
 const glm::vec3 PRAC_CAM_TARGET(0.0f, 0.0f, 0.0f);
 
+// develop: cámara libre y ciclo día/noche
+const float moveSpeed = 0.5f;
+const float CYCLE_DURATION = 20.0f;
+const float ORBIT_RADIUS = 5.0f;
+float       mouseSensitivity = 0.1f;
+double      lastMouseX = WINDOW_WIDTH / 2.0;
+double      lastMouseY = WINDOW_HEIGHT / 2.0;
+
+// ?? RandomizeTransform ??????????????????????????????????????????????????????
 void RandomizeTransform(ModelGameObject& obj,
     float minX, float maxX,
     float minY, float maxY,
     float minZ, float maxZ,
     float minScale, float maxScale)
 {
-    auto randRange = [](float min, float max) {
-        return min + static_cast<float>(rand()) / RAND_MAX * (max - min);
+    auto randRange = [](float mn, float mx) {
+        return mn + static_cast<float>(rand()) / RAND_MAX * (mx - mn);
         };
-
     obj.GetTransform().SetPosition(glm::vec3(
         randRange(minX, maxX),
         randRange(minY, maxY),
-        randRange(minZ, maxZ)
-    ));
+        randRange(minZ, maxZ)));
     obj.GetTransform().SetScale(glm::vec3(randRange(minScale, maxScale)));
     obj.GetTransform().SetRotation(glm::vec3(
         randRange(0.0f, glm::two_pi<float>()),
         randRange(0.0f, glm::two_pi<float>()),
-        randRange(0.0f, glm::two_pi<float>())
-    ));
+        randRange(0.0f, glm::two_pi<float>())));
 }
 
 glm::mat4 ComputeMVP(const Transform& t, const Camera& cam)
 {
-    return cam.GetProjectionMatrix()
-        * cam.GetViewMatrix()
-        * t.GetModelMatrix();
+    return cam.GetProjectionMatrix() * cam.GetViewMatrix() * t.GetModelMatrix();
 }
 
+// ?? main ????????????????????????????????????????????????????????????????????
 int main()
 {
     srand(static_cast<unsigned int>(
@@ -101,11 +101,10 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 
     GLFWwindow* window = glfwCreateWindow(
-        WINDOW_WIDTH, WINDOW_HEIGHT,
-        "Practica OpenGL", NULL, NULL);
+        WINDOW_WIDTH, WINDOW_HEIGHT, "Practica OpenGL", NULL, NULL);
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, ResizeWindow);
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED); // develop
 
     glewExperimental = GL_TRUE;
     glewInit();
@@ -118,14 +117,15 @@ int main()
         "MyFirstFragmentShader.glsl"
     );
 
+    // ?? Meshes ??????????????????????????????????????????????????????????????
     Primitive pyramidMesh;
     pyramidMesh.SetVerticesAndVariables(
         { -0.5f,0.0f,-0.5f,  0.5f,0.0f,-0.5f,
            0.5f,0.0f, 0.5f, -0.5f,0.0f, 0.5f,
            0.0f,0.8f, 0.0f },
         { 0,1,2, 2,3,0,
-          0,1,4, 1,2,4, 2,3,4, 3,0,4 }
-    );
+          0,1,4, 1,2,4, 2,3,4, 3,0,4 });
+
     Primitive cubeMesh;
     cubeMesh.SetVerticesAndVariables(
         { -0.5f,-0.5f, 0.5f,  0.5f,-0.5f, 0.5f,
@@ -134,8 +134,8 @@ int main()
            0.5f, 0.5f,-0.5f, -0.5f, 0.5f,-0.5f },
         { 0,1,2, 2,3,0,   5,4,7, 7,6,5,
           4,0,3, 3,7,4,   1,5,6, 6,2,1,
-          3,2,6, 6,7,3,   4,5,1, 1,0,4 }
-    );
+          3,2,6, 6,7,3,   4,5,1, 1,0,4 });
+
     Primitive orthoMesh;
     orthoMesh.SetVerticesAndVariables(
         { -0.5f,-0.5f, 0.5f,  0.5f,-0.5f, 0.5f,
@@ -144,9 +144,9 @@ int main()
            0.5f, 0.5f,-0.5f, -0.5f, 0.5f,-0.5f },
         { 0,1,2, 2,3,0,   5,4,7, 7,6,5,
           4,0,3, 3,7,4,   1,5,6, 6,2,1,
-          3,2,6, 6,7,3,   4,5,1, 1,0,4 }
-    );
+          3,2,6, 6,7,3,   4,5,1, 1,0,4 });
 
+    // ?? GameObjects primitivos ???????????????????????????????????????????????
     GameObject pyramid(&pyramidMesh, 0);
     GameObject cube(&cubeMesh, 1);
     GameObject ortho(&orthoMesh, 2);
@@ -155,6 +155,7 @@ int main()
     GameObject pracOrtho(&orthoMesh, 1);
     GameObject pracPyramid(&pyramidMesh, 2);
 
+    // ?? Modelos OBJ ?????????????????????????????????????????????????????????
     Model trollModel = LoadOBJModel("Assets/Modelos/troll.obj");
     Model rockModel = LoadOBJModel("Assets/Modelos/rock.obj");
     Model dogModel = LoadOBJModel("Assets/Modelos/dog.obj");
@@ -174,7 +175,6 @@ int main()
     troll.GetTransform().SetPosition(TROLL_OFFSET);
     troll2.GetTransform().SetPosition(TROLL_OFFSET2);
     troll3.GetTransform().SetPosition(TROLL_OFFSET3);
-
     troll.GetTransform().SetRotation(glm::vec3(0.0f, 90.0f, 0.0f));
     troll2.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, 0.0f));
     troll3.GetTransform().SetRotation(glm::vec3(0.0f, -110.0f, 0.0f));
@@ -182,27 +182,26 @@ int main()
     rock.GetTransform().SetPosition(ROCK_OFFSET);
     rock.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(0.0f), 0.0f));
     rock.GetTransform().SetScale(glm::vec3(0.4f));
-
     rock2.GetTransform().SetPosition(ROCK_OFFSET2);
     rock2.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(120.0f), 0.0f));
     rock2.GetTransform().SetScale(glm::vec3(0.4f));
-
     rock3.GetTransform().SetPosition(ROCK_OFFSET3);
     rock3.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(240.0f), 0.0f));
     rock3.GetTransform().SetScale(glm::vec3(0.4f));
 
     dog.GetTransform().SetPosition(DOG_OFFSET);
-
     cloud.GetTransform().SetPosition(CLOUD_OFFSET);
     cloud.GetTransform().SetScale(glm::vec3(1.4f));
     cloud.GetTransform().SetRotation(glm::vec3(120.0f, 0.0f, 0.0f));
 
+    // ?? Cámara ??????????????????????????????????????????????????????????????
     Camera camera(70.0f, ASPECT_RATIO);
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
     glm::vec3 target = troll.GetTransform().GetPosition();
     camera.SetTarget(target);
 
+    // ?? Managers ????????????????????????????????????????????????????????????
     InputManager input;
     SceneManager sceneManager;
     TimeManager  time;
@@ -210,15 +209,15 @@ int main()
     glClearColor(0.1f, 0.1f, 0.15f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
+    // ?? Estado de cámara ????????????????????????????????????????????????????
     float yaw = 0.0f;
+    float pitch = 20.0f;
 
-    float defaultRadius = 5.0f;
-    float defaultPitch = 20.0f;
-    float defaultFOV = 70.0f;
+    const float defaultRadius = 5.0f;
+    const float defaultPitch = 20.0f;
+    const float defaultFOV = 70.0f;
 
     float radius = defaultRadius;
-    float pitch = defaultPitch;
-
     float dollyDistance = 10.0f;
     float dollySpeed = 2.0f;
 
@@ -226,13 +225,16 @@ int main()
     bool detailView = false;
     bool dollyZoom = false;
 
-    bool flashlightOn = false;
+    // ?? Estado de iluminación ????????????????????????????????????????????????
+    bool flashOn = true;   // HEAD: linterna clásica
+    bool flashlightOn = false;  // develop: linterna extendida
+    bool fWasPressed = false;
     bool fKeyWasPressed = false;
 
-    auto randRange = [](float min, float max) {
-        return min + static_cast<float>(rand()) / RAND_MAX * (max - min);
-        };
+    // ?? Estado de escena ?????????????????????????????????????????????????????
+    bool wasGameScene = true;
 
+    // ?? Randomize inicial ????????????????????????????????????????????????????
     RandomizeTransform(troll, -3.0f, 3.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.3f, 1.2f);
     RandomizeTransform(rock, -3.0f, 3.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.3f, 1.2f);
     RandomizeTransform(dog, -3.0f, 3.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.3f, 0.5f);
@@ -240,9 +242,7 @@ int main()
     target = troll.GetTransform().GetPosition();
     camera.SetTarget(target);
 
-    bool wasGameScene = true;
-    bool flashOn = true;
-
+    // ???????????????????????????????????????????????????????????????????????
     while (!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -251,14 +251,10 @@ int main()
 
         const float t = time.GetTime();
 
-        renderer.Clear();
+        // ?? Ciclo día/noche (develop) — se calcula siempre ?????????????????
         float cycleAngle = (t / CYCLE_DURATION) * glm::two_pi<float>();
-
-        glm::vec3 sunPos(
-            ORBIT_RADIUS * cos(cycleAngle),
-            ORBIT_RADIUS * sin(cycleAngle),
-            0.0f
-        );
+        glm::vec3 sunPos(ORBIT_RADIUS * cos(cycleAngle),
+            ORBIT_RADIUS * sin(cycleAngle), 0.0f);
         glm::vec3 moonPos = -sunPos;
         glm::vec3 sunDir = glm::normalize(sunPos);
         glm::vec3 moonDir = glm::normalize(moonPos);
@@ -275,51 +271,30 @@ int main()
         renderer.SetDayNightUniforms(
             sunDir, sunIntensity,
             moonDir, moonIntensity,
-            ambientColor, ambientStr
-        );
+            ambientColor, ambientStr);
 
+        // ?? Toggle linterna develop (F) ?????????????????????????????????????
         bool fKeyNow = glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS;
-        if (fKeyNow && !fKeyWasPressed)
-            flashlightOn = !flashlightOn;
+        if (fKeyNow && !fKeyWasPressed) flashlightOn = !flashlightOn;
         fKeyWasPressed = fKeyNow;
 
-        // Pyramid
-        pyramid.GetTransform().SetPosition(
-            PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
-        pyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
-        pyramid.GetTransform().SetScale(glm::vec3(0.5f));
+        // ?? Toggle linterna HEAD (F) — comparte tecla, lógica separada ??????
+        bool fPressed = glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS;
+        if (fPressed && !fWasPressed) flashOn = !flashOn;
+        fWasPressed = fPressed;
 
-        if (sceneManager.IsGameScene())
-        // Cube
-        cube.GetTransform().SetPosition(
-            CUBE_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
-        cube.GetTransform().SetRotation(glm::vec3(0.0f, t * 2.0f, 0.0f));
-        cube.GetTransform().SetScale(glm::vec3(0.5f));
-
-        // Ortho
-        float blend = (sin(t) + 1.0f) * 0.5f;
-        ortho.GetTransform().SetPosition(ORTHO_OFFSET);
-        ortho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t * 2.0f));
-        ortho.GetTransform().SetScale(glm::mix(
-            glm::vec3(1.0f, 0.5f, 0.3f),
-            glm::vec3(0.5f), blend));
-
+        // ?? Cálculo de posición de cámara (común a las dos escenas) ?????????
         glm::vec3 cameraPos;
 
         if (!generalView && !detailView && !dollyZoom)
         {
-            wasGameScene = true;
+            // develop: movimiento WASD + ratón libre
             glm::vec3 forward(
                 cos(glm::radians(pitch)) * cos(glm::radians(yaw)),
                 0.0f,
-                cos(glm::radians(pitch)) * sin(glm::radians(yaw))
-            );
+                cos(glm::radians(pitch)) * sin(glm::radians(yaw)));
             glm::vec3 right = glm::normalize(glm::cross(forward, glm::vec3(0, 1, 0)));
 
-            static bool fWasPressed = false;
-            bool fPressed = glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS;
-            if (fPressed && !fWasPressed) flashOn = !flashOn;
-            fWasPressed = fPressed;
             if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
                 target += forward * moveSpeed * time.GetDeltaTime();
             if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -329,14 +304,64 @@ int main()
             if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
                 target += right * moveSpeed * time.GetDeltaTime();
 
-            glm::vec3 camPos = camera.GetTransform().GetPosition();
-            glm::vec3 camForward = glm::normalize(camera.GetTarget() - camPos);
             double mouseX, mouseY;
             glfwGetCursorPos(window, &mouseX, &mouseY);
+            yaw -= (float)(mouseX - lastMouseX) * mouseSensitivity;
+            pitch += (float)(mouseY - lastMouseY) * mouseSensitivity;
+            pitch = glm::clamp(pitch, -89.0f, 89.0f);
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
 
-            // SetLight before rendering each model
+            cameraPos.x = target.x + radius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+            cameraPos.y = target.y + radius * sin(glm::radians(pitch));
+            cameraPos.z = target.z + radius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
+            camera.SetTarget(target);
+        }
+        else
+        {
+            cameraPos = target + glm::vec3(0.0f, 2.0f, 10.0f);
+        }
+
+        if (dollyZoom)
+        {
+            dollyDistance -= time.GetDeltaTime() * dollySpeed;
+            if (dollyDistance < 2.0f) dollyDistance = 10.0f;
+            cameraPos = target + glm::vec3(0.0f, 2.0f, dollyDistance);
+            camera.SetFOV(glm::degrees(2.0f * atan(2.0f / dollyDistance)));
+        }
+        if (detailView)
+        {
+            glm::vec3 headTarget = target + glm::vec3(0.0f, 1.5f, 0.0f);
+            cameraPos = headTarget + glm::vec3(0.0f, 0.2f, 1.0f);
+            camera.SetTarget(headTarget);
+            camera.SetFOV(25.0f);
+        }
+
+        camera.GetTransform().SetPosition(cameraPos);
+
+        // ?? Linterna develop (dirección hacia target) ????????????????????????
+        glm::vec3 flashDir = glm::normalize(target - cameraPos);
+        renderer.SetFlashlightUniforms(
+            flashlightOn,
+            cameraPos,
+            flashDir,
+            glm::cos(glm::radians(12.5f)),
+            glm::cos(glm::radians(20.0f)),
+            5.0f);
+
+        renderer.Clear();
+
+        // ????????????????????????????????????????????????????????????????????
+        if (sceneManager.IsGameScene())
+        {
+            wasGameScene = true;
+
+            glm::vec3 camPos = camera.GetTransform().GetPosition();
+            glm::vec3 camForward = glm::normalize(camera.GetTarget() - camPos);
+
+            // Lambda: SetLight (HEAD) + Render con tint
             auto renderModel = [&](ModelGameObject& obj,
-                int type,
+                int       type,
                 glm::vec4 tintColor = glm::vec4(1.0f),
                 float     tintStrength = 0.0f)
                 {
@@ -345,33 +370,15 @@ int main()
                         camPos, camForward, flashOn);
                     renderer.Render(*obj.GetModel(),
                         ComputeMVP(obj.GetTransform(), camera),
+                        obj.GetTransform().GetModelMatrix(),
                         t, type, tintColor, tintStrength);
                 };
-            float deltaX = (float)(mouseX - lastMouseX) * mouseSensitivity;
-            float deltaY = (float)(mouseY - lastMouseY) * mouseSensitivity;
 
-            // Primitive animations
+            // Primitivas animadas
             pyramid.GetTransform().SetPosition(
                 PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
             pyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
             pyramid.GetTransform().SetScale(glm::vec3(0.5f));
-            lastMouseX = mouseX;
-            lastMouseY = mouseY;
-
-            yaw -= deltaX;
-            pitch += deltaY;
-            pitch = glm::clamp(pitch, -89.0f, 89.0f);
-
-            cameraPos.x = target.x + radius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-            cameraPos.y = target.y + radius * sin(glm::radians(pitch));
-            cameraPos.z = target.z + radius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-
-            camera.SetTarget(target);
-        }
-        else
-        {
-            cameraPos = target + glm::vec3(0.0f, 2.0f, 10.0f);
-        }
 
             cube.GetTransform().SetPosition(
                 CUBE_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
@@ -382,62 +389,9 @@ int main()
             ortho.GetTransform().SetPosition(ORTHO_OFFSET);
             ortho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t * 2.0f));
             ortho.GetTransform().SetScale(glm::mix(
-                glm::vec3(1.0f, 0.5f, 0.3f),
-                glm::vec3(0.5f), blend));
-        if (dollyZoom)
-        {
-            dollyDistance -= time.GetDeltaTime() * dollySpeed;
-            if (dollyDistance < 2.0f)
-                dollyDistance = 10.0f;
+                glm::vec3(1.0f, 0.5f, 0.3f), glm::vec3(0.5f), blend));
 
-            // Camera orbit
-            glm::vec3 cameraPos;
-            cameraPos = target + glm::vec3(0.0f, 2.0f, dollyDistance);
-
-            if (!generalView && !detailView && !dollyZoom)
-            {
-                cameraPos.x = target.x + radius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-                cameraPos.y = target.y + radius * sin(glm::radians(pitch));
-                cameraPos.z = target.z + radius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-                camera.SetTarget(target);
-            }
-            else
-            {
-                cameraPos = target + glm::vec3(0.0f, 2.0f, 10.0f);
-            }
-
-            if (dollyZoom)
-            {
-                dollyDistance -= time.GetDeltaTime() * dollySpeed;
-                if (dollyDistance < 2.0f) dollyDistance = 10.0f;
-
-                cameraPos = target + glm::vec3(0.0f, 2.0f, dollyDistance);
-
-                float dynamicFOV = glm::degrees(2.0f * atan(2.0f / dollyDistance));
-                camera.SetFOV(dynamicFOV);
-            }
-            if (detailView)
-            {
-                glm::vec3 headTarget = target + glm::vec3(0.0f, 1.5f, 0.0f);
-                cameraPos = headTarget + glm::vec3(0.0f, 0.2f, 1.0f);
-                camera.SetTarget(headTarget);
-                camera.SetFOV(25.0f);
-            }
-
-            camera.GetTransform().SetPosition(cameraPos);
-            float dynamicFOV = glm::degrees(2.0f * atan(2.0f / dollyDistance));
-            camera.SetFOV(dynamicFOV);
-        }
-
-        if (detailView)
-        {
-            glm::vec3 headTarget = target + glm::vec3(0.0f, 1.5f, 0.0f);
-            cameraPos = headTarget + glm::vec3(0.0f, 0.2f, 1.0f);
-            camera.SetTarget(headTarget);
-            camera.SetFOV(25.0f);
-        }
-
-            // Render models
+            // Modelos OBJ
             renderModel(troll, 3, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 1.0f);
             renderModel(troll2, 3);
             renderModel(troll3, 3, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 1.0f);
@@ -445,19 +399,6 @@ int main()
             renderModel(rock2, 3);
             renderModel(rock3, 3);
             renderModel(dog, 3);
-        camera.GetTransform().SetPosition(cameraPos);
-
-        glm::vec3 flashDir = glm::normalize(target - cameraPos);
-        renderer.SetFlashlightUniforms(
-            flashlightOn,
-            cameraPos,
-            flashDir,
-            glm::cos(glm::radians(12.5f)),
-            glm::cos(glm::radians(20.0f)),
-            5.0f
-        );
-
-        renderer.Clear();
 
             if (cloud.IsVisible())
             {
@@ -465,41 +406,23 @@ int main()
                     camPos, camForward, flashOn);
                 renderer.Render(*cloud.GetModel(),
                     ComputeMVP(cloud.GetTransform(), camera),
+                    cloud.GetTransform().GetModelMatrix(),
                     t, 4, glm::vec4(0.3f, 0.3f, 0.3f, 0.3f), 1.0f);
             }
-        if (sceneManager.IsGameScene())
-        {
-            if (troll.IsVisible())
-                renderer.Render(*troll.GetModel(),
-                    ComputeMVP(troll.GetTransform(), camera),
-                    troll.GetTransform().GetModelMatrix(), t);
 
-            // Camera mode keys
-            if (rock.IsVisible())
-                renderer.Render(*rock.GetModel(),
-                    ComputeMVP(rock.GetTransform(), camera),
-                    rock.GetTransform().GetModelMatrix(), t);
-
-            if (dog.IsVisible())
-                renderer.Render(*dog.GetModel(),
-                    ComputeMVP(dog.GetTransform(), camera),
-                    dog.GetTransform().GetModelMatrix(), t);
-
+            // Teclas de modo de cámara
             if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             {
                 generalView = true;  detailView = false; dollyZoom = false;
             }
             if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
             {
-                detailView = true;   generalView = false; dollyZoom = false;
+                detailView = true;  generalView = false; dollyZoom = false;
             }
             if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
             {
-                dollyZoom = true;    generalView = false; detailView = false;
+                dollyZoom = true;  generalView = false; detailView = false;
             }
-                dollyZoom = true;    generalView = false; detailView = false;
-            }
-
             if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             {
                 generalView = false; detailView = false; dollyZoom = false;
@@ -508,6 +431,7 @@ int main()
                 camera.SetFOV(defaultFOV);
             }
         }
+        // ????????????????????????????????????????????????????????????????????
         else if (sceneManager.IsEmptyScene())
         {
             if (wasGameScene)
@@ -515,9 +439,6 @@ int main()
                 generalView = false;
                 detailView = false;
                 dollyZoom = false;
-                generalView = false; detailView = false; dollyZoom = false;
-                radius = defaultRadius;
-                pitch = defaultPitch;
                 camera.SetFOV(defaultFOV);
                 input.Reset();
                 wasGameScene = false;
@@ -527,17 +448,20 @@ int main()
             camera.SetTarget(PRAC_CAM_TARGET);
             camera.GetTransform().SetPosition(PRAC_CAM_POS);
 
+            // Cubo
             pracCube.GetTransform().SetPosition(
                 PRAC_CUBE_OFFSET + glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
             pracCube.GetTransform().SetRotation(glm::vec3(0.0f, t, 0.0f));
             pracCube.GetTransform().SetScale(glm::vec3(0.5f));
 
+            // Ortho
             float blend = (sin(t) + 1.0f) * 0.5f;
             pracOrtho.GetTransform().SetPosition(PRAC_ORTHO_OFFSET);
             pracOrtho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t));
             pracOrtho.GetTransform().SetScale(
                 glm::mix(ORTHO_BASE_SCALE, ORTHO_CUBE_SCALE, blend));
 
+            // Pirámide
             pracPyramid.GetTransform().SetPosition(
                 PRAC_PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
             pracPyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
@@ -546,14 +470,17 @@ int main()
             if (input.ShowCube())
                 renderer.Render(*pracCube.GetPrimitive(),
                     ComputeMVP(pracCube.GetTransform(), camera),
+                    pracCube.GetTransform().GetModelMatrix(),
                     pracCube.GetObjectType(), t);
             if (input.ShowOrtho())
                 renderer.Render(*pracOrtho.GetPrimitive(),
                     ComputeMVP(pracOrtho.GetTransform(), camera),
+                    pracOrtho.GetTransform().GetModelMatrix(),
                     pracOrtho.GetObjectType(), t);
             if (input.ShowPyramid())
                 renderer.Render(*pracPyramid.GetPrimitive(),
                     ComputeMVP(pracPyramid.GetTransform(), camera),
+                    pracPyramid.GetTransform().GetModelMatrix(),
                     pracPyramid.GetObjectType(), t);
         }
 
