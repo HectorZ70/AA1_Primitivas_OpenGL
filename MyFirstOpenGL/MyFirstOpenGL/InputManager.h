@@ -34,4 +34,6 @@ public:
     bool ShowOrtho() const;
 
     bool IsWireframe() const;
+
+    void Reset();
 };

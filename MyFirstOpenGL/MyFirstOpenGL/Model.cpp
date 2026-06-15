@@ -9,6 +9,7 @@ Model::Model(
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
     glGenBuffers(1, &uvVBO);
+    glGenBuffers(1, &normalsVBO);
 
     glBindVertexArray(vao);
 
@@ -27,6 +28,15 @@ Model::Model(
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE,
         2 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, normalsVBO);
+    glBufferData(GL_ARRAY_BUFFER, 
+        normals.size() * sizeof(float), 
+        normals.data(), 
+        GL_STATIC_DRAW);
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE,
+        2 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(2);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
