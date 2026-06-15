@@ -37,21 +37,18 @@ void RenderManager::Initialize(
     shaderProgram = CreateProgram(shaders);
     glUseProgram(shaderProgram);
 
-    // Base
     mvpLocation = glGetUniformLocation(shaderProgram, "mvp");
     modelLocation = glGetUniformLocation(shaderProgram, "model");
     objectTypeLocation = glGetUniformLocation(shaderProgram, "objectType");
     timeLocation = glGetUniformLocation(shaderProgram, "time");
     textureSamplerLocation = glGetUniformLocation(shaderProgram, "textureSampler");
 
-    // HEAD: tint + normal matrix + sistema de luz clásico
     tint = glGetUniformLocation(shaderProgram, "tint");
     tintStrenght = glGetUniformLocation(shaderProgram, "tintStreght");
     normalMatrixLocation = glGetUniformLocation(shaderProgram, "normalMatrix");
     ambientLight.Initialize(shaderProgram);
     flashlight.Initialize(shaderProgram);
 
-    // develop: día/noche
     sunDirectionLoc = glGetUniformLocation(shaderProgram, "sunDirection");
     moonDirectionLoc = glGetUniformLocation(shaderProgram, "moonDirection");
     sunIntensityLoc = glGetUniformLocation(shaderProgram, "sunIntensity");
@@ -59,7 +56,6 @@ void RenderManager::Initialize(
     ambientColorLoc = glGetUniformLocation(shaderProgram, "ambientColor");
     ambientStrengthLoc = glGetUniformLocation(shaderProgram, "ambientStrength");
 
-    // develop: linterna extendida
     flashlightOnLoc = glGetUniformLocation(shaderProgram, "flashlightOn");
     flashlightPosLoc = glGetUniformLocation(shaderProgram, "flashlightPos");
     flashlightDirLoc = glGetUniformLocation(shaderProgram, "flashlightDir");
@@ -73,7 +69,6 @@ void RenderManager::Clear()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
-// ── HEAD: SetLight ──────────────────────────────────────────────────────────
 void RenderManager::SetLight(
     const glm::mat4& modelMatrix,
     const glm::vec3& camPos,
@@ -93,7 +88,6 @@ void RenderManager::SetLight(
 Light& RenderManager::GetLight() { return ambientLight; }
 Flashlight& RenderManager::GetFlashlight() { return flashlight; }
 
-// ── develop: SetDayNightUniforms ────────────────────────────────────────────
 void RenderManager::SetDayNightUniforms(
     const glm::vec3& sunDir, float sunIntensity,
     const glm::vec3& moonDir, float moonIntensity,
@@ -108,7 +102,6 @@ void RenderManager::SetDayNightUniforms(
     glUniform1f(ambientStrengthLoc, ambStrength);
 }
 
-// ── develop: SetFlashlightUniforms ─────────────────────────────────────────
 void RenderManager::SetFlashlightUniforms(
     bool on,
     const glm::vec3& pos,
@@ -126,7 +119,7 @@ void RenderManager::SetFlashlightUniforms(
     glUniform1f(flashlightRangeLoc, range);
 }
 
-// ── Render Primitive ────────────────────────────────────────────────────────
+// Render Primitive
 void RenderManager::Render(
     const Primitive& primitive,
     const glm::mat4& mvp,
@@ -141,7 +134,7 @@ void RenderManager::Render(
     primitive.Draw();
 }
 
-// ── Render Model OBJ ───────────────────────────────────────────────────────
+// Render Model
 void RenderManager::Render(
     const Model& modelObj,
     const glm::mat4& mvpMat,

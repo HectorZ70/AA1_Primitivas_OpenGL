@@ -19,14 +19,12 @@ private:
     GLint  timeLocation;
     GLint  textureSamplerLocation;
 
-    // HEAD: tint y normal matrix
     GLuint tint;
     GLuint tintStrenght;
     GLint  normalMatrixLocation;
     Light      ambientLight;
     Flashlight flashlight;
 
-    // develop: día/noche
     GLint sunDirectionLoc;
     GLint moonDirectionLoc;
     GLint sunIntensityLoc;
@@ -34,7 +32,6 @@ private:
     GLint ambientColorLoc;
     GLint ambientStrengthLoc;
 
-    // develop: linterna extendida
     GLint flashlightOnLoc;
     GLint flashlightPosLoc;
     GLint flashlightDirLoc;
@@ -45,7 +42,6 @@ private:
 public:
     RenderManager();
 
-    // Mantiene geometry shader (HEAD lo usa)
     void Initialize(
         const char* vertexShaderPath,
         const char* geometryShaderPath,
@@ -54,7 +50,6 @@ public:
 
     void Clear();
 
-    // HEAD: iluminación clásica
     void SetLight(
         const glm::mat4& modelMatrix,
         const glm::vec3& camPos,
@@ -64,7 +59,6 @@ public:
     Light& GetLight();
     Flashlight& GetFlashlight();
 
-    // develop: día/noche y linterna extendida
     void SetDayNightUniforms(
         const glm::vec3& sunDir, float sunIntensity,
         const glm::vec3& moonDir, float moonIntensity,
@@ -79,7 +73,7 @@ public:
         float            range
     );
 
-    // Render Primitive — firma unificada con model matrix explícita
+    // Render Primitive
     void Render(
         const Primitive& primitive,
         const glm::mat4& mvp,
@@ -88,7 +82,7 @@ public:
         float            time
     );
 
-    // Render Model OBJ — HEAD añade tint, develop añade modelMat explícita
+    // Render Model
     void Render(
         const Model& model,
         const glm::mat4& mvpMat,

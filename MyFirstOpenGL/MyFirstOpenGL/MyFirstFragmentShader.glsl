@@ -7,43 +7,39 @@ in vec3 worldPosition;
 
 out vec4 FragColor;
 
-uniform int   objectType;
+uniform int objectType;
 uniform float time;
 uniform sampler2D textureSampler;
 
-// HEAD: iluminación clásica
-uniform vec3  ambientColor;
+uniform vec3 ambientColor;
 uniform float ambientIntensity;
-uniform vec3  flashlightPos;
-uniform vec3  flashlightDir;
-uniform vec3  flashlightColor;
+uniform vec3 flashlightPos;
+uniform vec3 flashlightDir;
+uniform vec3 flashlightColor;
 uniform float flashlightCutoff;
 uniform float flashlightOuter;
 uniform float flashlightIntensity;
-uniform bool  flashlightOn;
+uniform bool flashlightOn;
 
-// HEAD: tint
-uniform vec4  tint;
+uniform vec4 tint;
 uniform float tintStreght;
 
-// develop: día/noche
-uniform vec3  sunDirection;
-uniform vec3  moonDirection;
+uniform vec3 sunDirection;
+uniform vec3 moonDirection;
 uniform float sunIntensity;
 uniform float moonIntensity;
 uniform float ambientStrength;
 
-// develop: linterna extendida
 uniform float flashlightInnerCutoff;
 uniform float flashlightOuterCutoff;
 uniform float flashlightRange;
 
 // Constantes
-const vec4  COLOR_YELLOW = vec4(1.0, 1.0, 0.0, 1.0);
-const vec4  COLOR_ORANGE = vec4(1.0, 0.5, 0.0, 1.0);
-const vec4  COLOR_RED    = vec4(1.0, 0.0, 0.0, 1.0);
-const vec4  COLOR_GREEN  = vec4(0.0, 1.0, 0.0, 1.0);
-const vec4  COLOR_BLUE   = vec4(0.0, 0.0, 1.0, 1.0);
+const vec4 COLOR_YELLOW = vec4(1.0, 1.0, 0.0, 1.0);
+const vec4 COLOR_ORANGE = vec4(1.0, 0.5, 0.0, 1.0);
+const vec4 COLOR_RED = vec4(1.0, 0.0, 0.0, 1.0);
+const vec4 COLOR_GREEN = vec4(0.0, 1.0, 0.0, 1.0);
+const vec4 COLOR_BLUE = vec4(0.0, 0.0, 1.0, 1.0);
 
 const float COLOR_CYCLE_DURATION = 2.0;
 const float MIN_DIFFUSE = 0.15;
@@ -103,11 +99,9 @@ void main()
 
     vec3 norm = normalize(normalsFragmentShader);
 
-    // Ambient HEAD
     vec3 ambient = ambientColor * ambientIntensity;
 
-    // Flashlight HEAD
-    vec3 flashContribHEAD = vec3(0.0);
+    vec3 classicFlashlightContribution  = vec3(0.0);
 
     if (flashlightOn)
     {
@@ -126,7 +120,7 @@ void main()
         float atten =
             1.0 / (1.0 + 0.09 * dist + 0.032 * dist * dist);
 
-        flashContribHEAD =
+        classicFlashlightContribution =
             flashlightColor *
             flashlightIntensity *
             diff *
@@ -201,7 +195,7 @@ void main()
         ambient +
         ambientColor * ambientStrength +
         diffuseLight +
-        flashContribHEAD +
+        classicFlashlightContribution +
         flashContribDevelop;
 
     FragColor = vec4(baseColor.rgb * lighting, baseColor.a);
