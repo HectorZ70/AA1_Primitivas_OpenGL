@@ -1,3 +1,9 @@
+Este proyecto incluye el AA1/AA2/AA3
+
+Si la tarea a corregir es la AR1 pulsa directamente la tecla F2 para ver la escena de las figuras geométricas.
+
+-------------------------------------------------------------------------------------------------------------------
+
 Para sacar el color naranja exacto se ha usado IA (Sacado con el siguiente promp: Teniendo en cuenta que 1.0 1.0 1.0 es blanco, como puedo sacar color naranja).
 
 La idea de los object types ha sido dada por la IA (Sacado con el siguiente promp: Tengo un codigo de openGL, necesito que este codigo pueda mostrar varios objetos con comportamientos del shader distintos entre si, como puedo hacerlo?).
