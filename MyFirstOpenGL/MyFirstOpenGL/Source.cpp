@@ -44,6 +44,7 @@ const glm::vec3 ROCK_OFFSET3(
 
 const glm::vec3 DOG_OFFSET(0.0f, -0.5f, 0.0f);
 const glm::vec3 CLOUD_OFFSET(5.0f, 2.0f, 10.0f);
+const glm::vec3 CLOUD_OFFSET2(10.0f, 2.0f, 10.0f);
 
 // Escena vacía
 const glm::vec3 PRAC_CUBE_OFFSET(-1.2f, 0.0f, 0.0f);
@@ -165,6 +166,7 @@ int main()
     ModelGameObject rock3(&rockModel);
     ModelGameObject dog(&dogModel);
     ModelGameObject cloud(&rockModel);
+    ModelGameObject largeCloud(&rockModel);
 
     troll.GetTransform().SetPosition(TROLL_OFFSET);
     troll2.GetTransform().SetPosition(TROLL_OFFSET2);
@@ -176,6 +178,9 @@ int main()
     rock.GetTransform().SetPosition(ROCK_OFFSET);
     rock.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(0.0f), 0.0f));
     rock.GetTransform().SetScale(glm::vec3(0.4f));
+    largeCloud.GetTransform().SetWiden(5.0f);
+    largeCloud.GetTransform().SetPosition(glm::vec3(10.f, 10.0f, 0.0f));
+
     rock2.GetTransform().SetPosition(ROCK_OFFSET2);
     rock2.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(120.0f), 0.0f));
     rock2.GetTransform().SetScale(glm::vec3(0.4f));
@@ -186,7 +191,7 @@ int main()
     dog.GetTransform().SetPosition(DOG_OFFSET);
     cloud.GetTransform().SetPosition(CLOUD_OFFSET);
     cloud.GetTransform().SetScale(glm::vec3(1.4f));
-    cloud.GetTransform().SetRotation(glm::vec3(120.0f, 0.0f, 0.0f));
+    cloud.GetTransform().SetRotation(glm::vec3(10.0f, 5.0f, 5.0f));
 
     Camera camera(70.0f, ASPECT_RATIO);
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -379,6 +384,8 @@ int main()
             renderModel(rock2, 3);
             renderModel(rock3, 3);
             renderModel(dog, 3);
+            renderModel(largeCloud, 3);
+            renderModel(cloud, 3);
 
             if (cloud.IsVisible())
             {

@@ -8,6 +8,7 @@ Transform::Transform()
 void Transform::SetPosition(const glm::vec3& pos) { position = pos; }
 void Transform::SetRotation(const glm::vec3& rot) { rotation = rot; }
 void Transform::SetScale(const glm::vec3& scl) { scale = scl; }
+void Transform::SetWiden(const float scl) { scale.x = scl; }
 
 glm::vec3 Transform::GetPosition() const { return position; }
 glm::vec3 Transform::GetRotation() const { return rotation; }
