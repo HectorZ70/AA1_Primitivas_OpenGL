@@ -52,7 +52,7 @@ void main()
     {
         baseColor = vec4(tintStreght, 1.0, 0.0, 0.0);
     }
-    else if (objectType == 0) // Cubo
+    else if (objectType == 0) 
     {
         float ndcY = primitivePosition.y / primitivePosition.w;
 
@@ -60,7 +60,7 @@ void main()
             ? COLOR_YELLOW
             : COLOR_ORANGE;
     }
-    else if (objectType == 1) // Ortoedro
+    else if (objectType == 1)
     {
         float ndcY = primitivePosition.y / primitivePosition.w;
 
@@ -68,7 +68,7 @@ void main()
             ? COLOR_YELLOW
             : COLOR_ORANGE;
     }
-    else if (objectType == 2) // Pirámide
+    else if (objectType == 2)
     {
         float phase = mod(time, COLOR_CYCLE_DURATION * 3.0);
 
