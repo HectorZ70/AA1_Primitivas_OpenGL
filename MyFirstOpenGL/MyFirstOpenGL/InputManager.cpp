@@ -199,3 +199,13 @@ bool InputManager::IsWireframe() const
 {
     return wireframe;
 }
+
+void InputManager::Reset()
+{
+    showCube = true;
+    showPyramid = true;
+    showOrtho = true;
+    wireframe = true;
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+}
