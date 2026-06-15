@@ -4,17 +4,27 @@
 #include "Primitive.h"
 #include "Model.h"
 #include "Utils.h"
+#include "Light.h"
+#include "Flashlight.h"
 
-class RenderManager {
+class RenderManager
+{
 private:
     GLuint shaderProgram;
-    GLint mvpLocation;
-    GLint modelLocation;
-    GLint objectTypeLocation;
-    GLint timeLocation;
-    GLint textureSamplerLocation;
 
-    // Dia/noche
+    // MVP y uniforms base
+    GLint  mvpLocation;
+    GLint  modelLocation;
+    GLint  objectTypeLocation;
+    GLint  timeLocation;
+    GLint  textureSamplerLocation;
+
+    GLuint tint;
+    GLuint tintStrenght;
+    GLint  normalMatrixLocation;
+    Light      ambientLight;
+    Flashlight flashlight;
+
     GLint sunDirectionLoc;
     GLint moonDirectionLoc;
     GLint sunIntensityLoc;
@@ -22,7 +32,6 @@ private:
     GLint ambientColorLoc;
     GLint ambientStrengthLoc;
 
-    // Linterna
     GLint flashlightOnLoc;
     GLint flashlightPosLoc;
     GLint flashlightDirLoc;
@@ -32,32 +41,57 @@ private:
 
 public:
     RenderManager();
-    void Initialize(const char* vertexShaderPath,
-        const char* fragmentShaderPath);
+
+    void Initialize(
+        const char* vertexShaderPath,
+        const char* geometryShaderPath,
+        const char* fragmentShaderPath
+    );
+
     void Clear();
+
+    void SetLight(
+        const glm::mat4& modelMatrix,
+        const glm::vec3& camPos,
+        const glm::vec3& camForward,
+        bool             flashOn
+    );
+    Light& GetLight();
+    Flashlight& GetFlashlight();
 
     void SetDayNightUniforms(
         const glm::vec3& sunDir, float sunIntensity,
         const glm::vec3& moonDir, float moonIntensity,
-        const glm::vec3& ambColor, float ambStrength);
-
+        const glm::vec3& ambColor, float ambStrength
+    );
     void SetFlashlightUniforms(
-        bool on,
+        bool             on,
         const glm::vec3& pos,
         const glm::vec3& dir,
-        float innerCutoff,
-        float outerCutoff,
-        float range);
+        float            innerCutoff,
+        float            outerCutoff,
+        float            range
+    );
 
-    void Render(const Primitive& primitive,
+    // Render Primitive
+    void Render(
+        const Primitive& primitive,
         const glm::mat4& mvp,
         const glm::mat4& model,
-        int objectType, float time);
+        int              objectType,
+        float            time
+    );
 
-    void Render(const Model& model,
+    // Render Model
+    void Render(
+        const Model& model,
         const glm::mat4& mvpMat,
         const glm::mat4& modelMat,
-        float time);
+        float            time,
+        int              objectType = 3,
+        glm::vec4        tintColor = glm::vec4(1.0f),
+        float            tintStrenghtValue = 0.0f
+    );
 
     GLuint GetProgram() const;
 };
