@@ -24,29 +24,26 @@ static_cast<float>(WINDOW_WIDTH) / WINDOW_HEIGHT;
 const glm::vec3 PYRAMID_OFFSET(0.6f, 0.0f, 0.0f);
 const glm::vec3 CUBE_OFFSET(-0.6f, 0.0f, 0.0f);
 const glm::vec3 ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
+
+// Troll positions
 const glm::vec3 TROLL_OFFSET(-1.5f, 0.0f, 0.0f);
 const glm::vec3 TROLL_OFFSET2(-0.5f, 0.0f, -2.0f);
 const glm::vec3 TROLL_OFFSET3(-0.5f, 0.0f, 2.0f);
-const float FIRE_RADIUS = 0.8f;
-const glm::vec3 TROLL_OFFSET(-0.6f, 0.0f, 0.0f);
-const glm::vec3 ROCK_OFFSET(1.6f, 0.0f, 0.0f);
-const glm::vec3 DOG_OFFSET(0.0f, -.5f, 0.f);
 
-// Posiciones en c�rculo (�ngulos: 0�, 120�, 240�)
+// Rocks in a circle
+const float FIRE_RADIUS = 0.8f;
 const glm::vec3 ROCK_OFFSET(
     FIRE_RADIUS* cos(glm::radians(0.0f)), 0.0f,
     FIRE_RADIUS* sin(glm::radians(0.0f)));
-
 const glm::vec3 ROCK_OFFSET2(
     FIRE_RADIUS* cos(glm::radians(120.0f)), 0.0f,
     FIRE_RADIUS* sin(glm::radians(120.0f)));
-
 const glm::vec3 ROCK_OFFSET3(
     FIRE_RADIUS* cos(glm::radians(240.0f)), 0.0f,
     FIRE_RADIUS* sin(glm::radians(240.0f)));
 
-
-const glm::vec3 CLOUD_OFFSET(5.0f, 2.0f, 10.f);
+const glm::vec3 DOG_OFFSET(0.0f, -0.5f, 0.0f);
+const glm::vec3 CLOUD_OFFSET(5.0f, 2.0f, 10.0f);
 
 const glm::vec3 PRAC_CUBE_OFFSET(-1.2f, 0.0f, 0.0f);
 const glm::vec3 PRAC_ORTHO_OFFSET(0.0f, 0.0f, 0.0f);
@@ -56,7 +53,6 @@ const glm::vec3 ORTHO_BASE_SCALE(1.0f, 0.5f, 0.3f);
 const glm::vec3 ORTHO_CUBE_SCALE(0.5f, 0.5f, 0.5f);
 const glm::vec3 PRAC_CAM_POS(0.0f, 0.0f, 4.0f);
 const glm::vec3 PRAC_CAM_TARGET(0.0f, 0.0f, 0.0f);
-
 
 void RandomizeTransform(ModelGameObject& obj,
     float minX, float maxX,
@@ -90,7 +86,9 @@ glm::mat4 ComputeMVP(const Transform& t, const Camera& cam)
 
 int main()
 {
-    srand(static_cast<unsigned int>(std::chrono::high_resolution_clock::now().time_since_epoch().count()));
+    srand(static_cast<unsigned int>(
+        std::chrono::high_resolution_clock::now().time_since_epoch().count()));
+
     glfwInit();
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
@@ -150,9 +148,7 @@ int main()
     GameObject pracOrtho(&orthoMesh, 1);
     GameObject pracPyramid(&pyramidMesh, 2);
 
-
     Model trollModel = LoadOBJModel("Assets/Modelos/troll.obj");
-    Model trollModel2 = LoadOBJModel("Assets/Modelos/troll.obj");
     Model rockModel = LoadOBJModel("Assets/Modelos/rock.obj");
     Model dogModel = LoadOBJModel("Assets/Modelos/dog.obj");
     trollModel.SetTexture(LoadTexture("Assets/Texturas/troll.png"));
@@ -163,8 +159,11 @@ int main()
     ModelGameObject troll2(&trollModel);
     ModelGameObject troll3(&trollModel);
     ModelGameObject rock(&rockModel);
-    ModelGameObject cloud(&rockModel);
+    ModelGameObject rock2(&rockModel);
+    ModelGameObject rock3(&rockModel);
     ModelGameObject dog(&dogModel);
+    ModelGameObject cloud(&rockModel);
+
     troll.GetTransform().SetPosition(TROLL_OFFSET);
     troll2.GetTransform().SetPosition(TROLL_OFFSET2);
     troll3.GetTransform().SetPosition(TROLL_OFFSET3);
@@ -174,35 +173,27 @@ int main()
     troll3.GetTransform().SetRotation(glm::vec3(0.0f, -110.0f, 0.0f));
 
     rock.GetTransform().SetPosition(ROCK_OFFSET);
-    cloud.GetTransform().SetPosition(CLOUD_OFFSET);
-    dog.GetTransform().SetPosition(DOG_OFFSET);
-
-    ModelGameObject rock2(&rockModel);
-    ModelGameObject rock3(&rockModel);
-    rock2.GetTransform().SetPosition(ROCK_OFFSET2);
-    rock3.GetTransform().SetPosition(ROCK_OFFSET3);
-
-    rock.GetTransform().SetPosition(ROCK_OFFSET);
     rock.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(0.0f), 0.0f));
+    rock.GetTransform().SetScale(glm::vec3(0.4f));
 
     rock2.GetTransform().SetPosition(ROCK_OFFSET2);
     rock2.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(120.0f), 0.0f));
+    rock2.GetTransform().SetScale(glm::vec3(0.4f));
 
     rock3.GetTransform().SetPosition(ROCK_OFFSET3);
     rock3.GetTransform().SetRotation(glm::vec3(0.0f, glm::radians(240.0f), 0.0f));
-
-    rock.GetTransform().SetScale(glm::vec3(0.4f));
-    rock2.GetTransform().SetScale(glm::vec3(0.4f));
     rock3.GetTransform().SetScale(glm::vec3(0.4f));
 
+    dog.GetTransform().SetPosition(DOG_OFFSET);
+
+    cloud.GetTransform().SetPosition(CLOUD_OFFSET);
     cloud.GetTransform().SetScale(glm::vec3(1.4f));
-    cloud.GetTransform().SetRotation(glm::vec3(120.0f, 0.f, 0.0f));
+    cloud.GetTransform().SetRotation(glm::vec3(120.0f, 0.0f, 0.0f));
 
     Camera camera(70.0f, ASPECT_RATIO);
     camera.GetTransform().SetPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
     glm::vec3 target = troll.GetTransform().GetPosition();
-
     camera.SetTarget(target);
 
     InputManager input;
@@ -228,10 +219,6 @@ int main()
     bool detailView = false;
     bool dollyZoom = false;
 
-    auto randRange = [](float min, float max) {
-        return min + static_cast<float>(rand()) / RAND_MAX * (max - min);
-        };
-
     RandomizeTransform(troll, -3.0f, 3.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.3f, 1.2f);
     RandomizeTransform(rock, -3.0f, 3.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.3f, 1.2f);
     RandomizeTransform(dog, -3.0f, 3.0f, -1.0f, 1.0f, -1.0f, 1.0f, 0.3f, 0.5f);
@@ -254,7 +241,7 @@ int main()
 
         if (sceneManager.IsGameScene())
         {
-            wasGameScene = true; 
+            wasGameScene = true;
 
             static bool fWasPressed = false;
             bool fPressed = glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS;
@@ -264,48 +251,31 @@ int main()
             glm::vec3 camPos = camera.GetTransform().GetPosition();
             glm::vec3 camForward = glm::normalize(camera.GetTarget() - camPos);
 
-            if (troll.IsVisible()) {
-                renderer.SetLight(troll.GetTransform().GetModelMatrix(), camPos, camForward, flashOn);
-                renderer.Render(*troll.GetModel(), ComputeMVP(troll.GetTransform(), camera), t);
-            }
-            if (rock.IsVisible()) {
-                renderer.SetLight(rock.GetTransform().GetModelMatrix(), camPos, camForward, flashOn);
-                renderer.Render(*rock.GetModel(), ComputeMVP(rock.GetTransform(), camera), t);
-            }
-            if (dog.IsVisible()) {
-                renderer.SetLight(dog.GetTransform().GetModelMatrix(), camPos, camForward, flashOn);
-                renderer.Render(*dog.GetModel(), ComputeMVP(dog.GetTransform(), camera), t);
-            }
+            // SetLight before rendering each model
+            auto renderModel = [&](ModelGameObject& obj,
+                int type,
+                glm::vec4 tintColor = glm::vec4(1.0f),
+                float     tintStrength = 0.0f)
+                {
+                    if (!obj.IsVisible()) return;
+                    renderer.SetLight(obj.GetTransform().GetModelMatrix(),
+                        camPos, camForward, flashOn);
+                    renderer.Render(*obj.GetModel(),
+                        ComputeMVP(obj.GetTransform(), camera),
+                        t, type, tintColor, tintStrength);
+                };
 
-            /*
-            // Get camera forward from the view matrix (third column negated)
-            glm::vec3 camForward = -glm::vec3(camera.GetViewMatrix()[0][2],
-                camera.GetViewMatrix()[1][2],
-                camera.GetViewMatrix()[2][2]);
-            glm::vec3 camPos = camera.GetTransform().GetPosition();
-
-            // Before each Render() call:
-            renderer.SetLight(
-                troll.GetTransform().GetModelMatrix(),
-                camPos,
-                camForward,
-                flashOn
-            );
-            */
-            
-            // Pyramid
+            // Primitive animations
             pyramid.GetTransform().SetPosition(
                 PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
             pyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
             pyramid.GetTransform().SetScale(glm::vec3(0.5f));
 
-            // Cube
             cube.GetTransform().SetPosition(
                 CUBE_OFFSET + glm::vec3(0.0f, sin(t) * 0.75f, 0.0f));
             cube.GetTransform().SetRotation(glm::vec3(0.0f, t * 2.0f, 0.0f));
             cube.GetTransform().SetScale(glm::vec3(0.5f));
 
-            // Ortho
             float blend = (sin(t) + 1.0f) * 0.5f;
             ortho.GetTransform().SetPosition(ORTHO_OFFSET);
             ortho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t * 2.0f));
@@ -313,150 +283,82 @@ int main()
                 glm::vec3(1.0f, 0.5f, 0.3f),
                 glm::vec3(0.5f), blend));
 
-            //Rotaci�n de la camara
+            // Camera orbit
             glm::vec3 cameraPos;
 
-            if (!generalView &&
-                !detailView &&
-                !dollyZoom)
+            if (!generalView && !detailView && !dollyZoom)
             {
-                cameraPos.x =
-                    target.x +
-                    radius *
-                    cos(glm::radians(pitch)) *
-                    cos(glm::radians(yaw));
-
-                cameraPos.y =
-                    target.y +
-                    radius *
-                    sin(glm::radians(pitch));
-
-                cameraPos.z =
-                    target.z +
-                    radius *
-                    cos(glm::radians(pitch)) *
-                    sin(glm::radians(yaw));
-
+                cameraPos.x = target.x + radius * cos(glm::radians(pitch)) * cos(glm::radians(yaw));
+                cameraPos.y = target.y + radius * sin(glm::radians(pitch));
+                cameraPos.z = target.z + radius * cos(glm::radians(pitch)) * sin(glm::radians(yaw));
                 camera.SetTarget(target);
             }
             else
             {
-                // Plano general frontal
-                cameraPos =
-                    target +
-                    glm::vec3(0.0f, 2.0f, 10.0f);
+                cameraPos = target + glm::vec3(0.0f, 2.0f, 10.0f);
             }
 
             if (dollyZoom)
             {
                 dollyDistance -= time.GetDeltaTime() * dollySpeed;
+                if (dollyDistance < 2.0f) dollyDistance = 10.0f;
 
-                if (dollyDistance < 2.0f)
-                    dollyDistance = 10.0f;
+                cameraPos = target + glm::vec3(0.0f, 2.0f, dollyDistance);
 
-                cameraPos =
-                    target +
-                    glm::vec3(0.0f, 2.0f, dollyDistance);
-
-                float dynamicFOV =
-                    glm::degrees(
-                        2.0f * atan(2.0f / dollyDistance)
-                    );
-
+                float dynamicFOV = glm::degrees(2.0f * atan(2.0f / dollyDistance));
                 camera.SetFOV(dynamicFOV);
             }
             if (detailView)
             {
-                glm::vec3 headTarget =
-                    target + glm::vec3(0.0f, 1.5f, 0.0f);
-
-                cameraPos =
-                    headTarget +
-                    glm::vec3(0.0f, 0.2f, 1.0f);
-
+                glm::vec3 headTarget = target + glm::vec3(0.0f, 1.5f, 0.0f);
+                cameraPos = headTarget + glm::vec3(0.0f, 0.2f, 1.0f);
                 camera.SetTarget(headTarget);
-
                 camera.SetFOV(25.0f);
             }
 
             camera.GetTransform().SetPosition(cameraPos);
 
-            // Models OBJ
-            if (troll.IsVisible())
-                renderer.Render(*troll.GetModel(),
-                    ComputeMVP(troll.GetTransform(), camera), t, 3,
-                    glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 1.0f);
+            // Render models
+            renderModel(troll, 3, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f), 1.0f);
+            renderModel(troll2, 3);
+            renderModel(troll3, 3, glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 1.0f);
+            renderModel(rock, 3);
+            renderModel(rock2, 3);
+            renderModel(rock3, 3);
+            renderModel(dog, 3);
 
-            
-            if (troll2.IsVisible())
-                renderer.Render(*troll2.GetModel(),
-                    ComputeMVP(troll2.GetTransform(), camera), t, 3);
-
-            if (troll3.IsVisible())
-                renderer.Render(*troll3.GetModel(),
-                    ComputeMVP(troll3.GetTransform(), camera), t, 3,
-                glm::vec4(1.0f, 1.0f, 0.0f, 1.0f), 1.0f);
-
-            if (rock.IsVisible())
-                renderer.Render(*rock.GetModel(),
-                    ComputeMVP(rock.GetTransform(), camera), t, 3);
-
-            if (rock2.IsVisible())
-                renderer.Render(*rock2.GetModel(),
-                    ComputeMVP(rock2.GetTransform(), camera), t, 3);
-
-            if (rock3.IsVisible())
-                renderer.Render(*rock3.GetModel(),
-                    ComputeMVP(rock3.GetTransform(), camera), t, 3);
-           
             if (cloud.IsVisible())
+            {
+                renderer.SetLight(cloud.GetTransform().GetModelMatrix(),
+                    camPos, camForward, flashOn);
                 renderer.Render(*cloud.GetModel(),
-                    ComputeMVP(cloud.GetTransform(), camera), t,
-                    4, glm::vec4(0.3f, 0.3f, 0.3f, .3f), 1.0f);
+                    ComputeMVP(cloud.GetTransform(), camera),
+                    t, 4, glm::vec4(0.3f, 0.3f, 0.3f, 0.3f), 1.0f);
+            }
 
-            if (dog.IsVisible())
-                renderer.Render(*dog.GetModel(),
-                    ComputeMVP(dog.GetTransform(), camera), t);
-
+            // Camera mode keys
             if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
             {
-                generalView = true;
-
-                detailView = false;
-                dollyZoom = false;
+                generalView = true;  detailView = false; dollyZoom = false;
             }
-
             if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
             {
-                detailView = true;
-
-                generalView = false;
-                dollyZoom = false;
+                detailView = true;   generalView = false; dollyZoom = false;
             }
-
             if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
             {
-                dollyZoom = true;
-
-                generalView = false;
-                detailView = false;
+                dollyZoom = true;    generalView = false; detailView = false;
             }
-
             if (glfwGetKey(window, GLFW_KEY_4) == GLFW_PRESS)
             {
-                generalView = false;
-                detailView = false;
-                dollyZoom = false;
-
+                generalView = false; detailView = false; dollyZoom = false;
                 radius = defaultRadius;
                 pitch = defaultPitch;
-
                 camera.SetFOV(defaultFOV);
             }
         }
-        else if (sceneManager.IsEmptyScene()) // Figures in empty scene behaviour
+        else if (sceneManager.IsEmptyScene())
         {
-
             if (wasGameScene)
             {
                 generalView = false;
@@ -471,42 +373,32 @@ int main()
             camera.SetTarget(PRAC_CAM_TARGET);
             camera.GetTransform().SetPosition(PRAC_CAM_POS);
 
-            // Cube behaviour
             pracCube.GetTransform().SetPosition(
-                PRAC_CUBE_OFFSET +
-                glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
+                PRAC_CUBE_OFFSET + glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
             pracCube.GetTransform().SetRotation(glm::vec3(0.0f, t, 0.0f));
             pracCube.GetTransform().SetScale(glm::vec3(0.5f));
 
-            // Ortho behaviour
             float blend = (sin(t) + 1.0f) * 0.5f;
             pracOrtho.GetTransform().SetPosition(PRAC_ORTHO_OFFSET);
             pracOrtho.GetTransform().SetRotation(glm::vec3(0.0f, 0.0f, t));
             pracOrtho.GetTransform().SetScale(
                 glm::mix(ORTHO_BASE_SCALE, ORTHO_CUBE_SCALE, blend));
 
-            // Pyramid behaviour
             pracPyramid.GetTransform().SetPosition(
-                PRAC_PYRAMID_OFFSET +
-                glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
+                PRAC_PYRAMID_OFFSET + glm::vec3(0.0f, sin(t) * BOUNCE_AMPLITUDE, 0.0f));
             pracPyramid.GetTransform().SetRotation(glm::vec3(t, t, 0.0f));
             pracPyramid.GetTransform().SetScale(glm::vec3(0.5f));
 
             if (input.ShowCube())
-                renderer.Render(
-                    *pracCube.GetPrimitive(),
+                renderer.Render(*pracCube.GetPrimitive(),
                     ComputeMVP(pracCube.GetTransform(), camera),
                     pracCube.GetObjectType(), t);
-
             if (input.ShowOrtho())
-                renderer.Render(
-                    *pracOrtho.GetPrimitive(),
+                renderer.Render(*pracOrtho.GetPrimitive(),
                     ComputeMVP(pracOrtho.GetTransform(), camera),
                     pracOrtho.GetObjectType(), t);
-
             if (input.ShowPyramid())
-                renderer.Render(
-                    *pracPyramid.GetPrimitive(),
+                renderer.Render(*pracPyramid.GetPrimitive(),
                     ComputeMVP(pracPyramid.GetTransform(), camera),
                     pracPyramid.GetObjectType(), t);
         }

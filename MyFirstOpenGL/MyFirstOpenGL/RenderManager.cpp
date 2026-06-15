@@ -22,14 +22,17 @@ void RenderManager::Initialize(
     shaderProgram = CreateProgram(shaders);
 
     glUseProgram(shaderProgram);
+
     mvpLocation = glGetUniformLocation(shaderProgram, "mvp");
     objectTypeLocation = glGetUniformLocation(shaderProgram, "objectType");
     timeLocation = glGetUniformLocation(shaderProgram, "time");
     textureSamplerLocation = glGetUniformLocation(shaderProgram, "textureSampler");
+
+    // Tint (feature/CameraComponent)
     tint = glGetUniformLocation(shaderProgram, "tint");
     tintStrenght = glGetUniformLocation(shaderProgram, "tintStreght");
 
-    // Lighting
+    // Lighting (HEAD)
     modelLocation = glGetUniformLocation(shaderProgram, "model");
     normalMatrixLocation = glGetUniformLocation(shaderProgram, "normalMatrix");
     ambientLight.Initialize(shaderProgram);
@@ -48,27 +51,17 @@ void RenderManager::SetLight(
     bool flashOn)
 {
     glUseProgram(shaderProgram);
-
     glm::mat3 normalMat = glm::transpose(glm::inverse(glm::mat3(modelMatrix)));
     glUniformMatrix4fv(modelLocation, 1, GL_FALSE, glm::value_ptr(modelMatrix));
     glUniformMatrix3fv(normalMatrixLocation, 1, GL_FALSE, glm::value_ptr(normalMat));
-
     flashlight.SetOn(flashOn);
     flashlight.Update(camPos, camForward);
-
     ambientLight.Apply();
     flashlight.Apply();
 }
 
-Light& RenderManager::GetLight()
-{
-    return ambientLight;
-}
-
-Flashlight& RenderManager::GetFlashlight()
-{
-    return flashlight;
-}
+Light& RenderManager::GetLight() { return ambientLight; }
+Flashlight& RenderManager::GetFlashlight() { return flashlight; }
 
 void RenderManager::Render(
     const Primitive& primitive,
@@ -86,20 +79,16 @@ void RenderManager::Render(
     const Model& model,
     const glm::mat4& mvp,
     float            time,
-    int objectType,
+    int              objectType,
     glm::vec4        tintColor,
     float            tintStrenghtValue)
-    float time)
 {
     glUseProgram(shaderProgram);
     glUniformMatrix4fv(mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
-    glUniform1i(objectTypeLocation, objectType);
-    glUniform1i(objectTypeLocation, 3);
-    glUniform1i(objectTypeLocation, 3);
+    glUniform1i(objectTypeLocation, objectType);   // usa el parámetro, no hardcoded 3
     glUniform1f(timeLocation, time);
-    glUniform4fv(tint, 1, glm::value_ptr(tintColor));      // location=tint, valor=tintColor
-    glUniform1f(tintStrenght, tintStrenghtValue);           // location=tintStrenght, valor=tintStrenghtValue
-
+    glUniform4fv(tint, 1, glm::value_ptr(tintColor));
+    glUniform1f(tintStrenght, tintStrenghtValue);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, model.GetTextureID());
     glUniform1i(textureSamplerLocation, 0);

@@ -11,22 +11,17 @@ class RenderManager
 {
 private:
     GLuint shaderProgram;
-
-    GLint mvpLocation;
-    GLint objectTypeLocation;
-    GLint timeLocation;
-
-    int objectType = 3;
-
-    GLint textureSamplerLocation;
+    GLint  mvpLocation;
+    GLint  objectTypeLocation;
+    GLint  timeLocation;
+    GLint  textureSamplerLocation;
     GLuint tint;
     GLuint tintStrenght;
 
-    // Model/normal matrix uniform locations (used for lighting)
-    GLint modelLocation;
-    GLint normalMatrixLocation;
-
-    Light ambientLight;
+    // Lighting uniforms
+    GLint  modelLocation;
+    GLint  normalMatrixLocation;
+    Light      ambientLight;
     Flashlight flashlight;
 
 public:
@@ -53,15 +48,18 @@ public:
         const Model& model,
         const glm::mat4& mvp,
         float            time,
-        int objectType,
+        int              objectType,
         glm::vec4        tintColor = glm::vec4(1.0f),
         float            tintStrenghtValue = 0.0f
     );
 
-    void SetLight(const glm::mat4& modelMatrix,
+    // Lighting
+    void SetLight(
+        const glm::mat4& modelMatrix,
         const glm::vec3& camPos,
         const glm::vec3& camForward,
-        bool  flashOn);
+        bool             flashOn
+    );
 
     Light& GetLight();
     Flashlight& GetFlashlight();
