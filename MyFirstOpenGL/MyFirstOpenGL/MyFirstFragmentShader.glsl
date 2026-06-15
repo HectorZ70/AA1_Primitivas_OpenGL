@@ -52,34 +52,32 @@ void main()
     {
         baseColor = vec4(tintStreght, 1.0, 0.0, 0.0);
     }
-    else if (objectType == 0)
-    {
-        float tMod = mod(time, 6.0);
-        vec3 col = (tMod < 2.0)
-            ? vec3(1,0,0)
-            : (tMod < 4.0)
-                ? vec3(0,1,0)
-                : vec3(0,0,1);
-
-        baseColor = vec4(col, 1.0);
-    }
-    else if (objectType == 1)
+    else if (objectType == 0) // Cubo
     {
         float ndcY = primitivePosition.y / primitivePosition.w;
+
         baseColor = (ndcY > 0.0)
             ? COLOR_YELLOW
             : COLOR_ORANGE;
     }
-    else if (objectType == 2)
+    else if (objectType == 1) // Ortoedro
+    {
+        float ndcY = primitivePosition.y / primitivePosition.w;
+
+        baseColor = (ndcY > 0.0)
+            ? COLOR_YELLOW
+            : COLOR_ORANGE;
+    }
+    else if (objectType == 2) // Pirámide
     {
         float phase = mod(time, COLOR_CYCLE_DURATION * 3.0);
 
-        if (phase < COLOR_CYCLE_DURATION)
-            baseColor = COLOR_RED;
-        else if (phase < COLOR_CYCLE_DURATION * 2.0)
-            baseColor = COLOR_GREEN;
-        else
-            baseColor = COLOR_BLUE;
+    if (phase < COLOR_CYCLE_DURATION)
+        baseColor = COLOR_RED;
+    else if (phase < COLOR_CYCLE_DURATION * 2.0)
+        baseColor = COLOR_GREEN;
+    else
+        baseColor = COLOR_BLUE;
     }
     else if (objectType == 3)
     {
